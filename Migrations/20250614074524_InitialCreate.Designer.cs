@@ -11,8 +11,8 @@ using Unitic_BE.Models;
 namespace Unitic_BE.Migrations
 {
     [DbContext(typeof(UniticDbContext))]
-    [Migration("20250613164013_AddNewColumnUser")]
-    partial class AddNewColumnUser
+    [Migration("20250614074524_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

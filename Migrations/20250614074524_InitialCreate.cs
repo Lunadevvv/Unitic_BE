@@ -5,7 +5,7 @@
 namespace Unitic_BE.Migrations
 {
     /// <inheritdoc />
-    public partial class AddNewColumnUser : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
