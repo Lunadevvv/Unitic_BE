@@ -14,7 +14,7 @@ namespace Unitic_BE.Models
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            var connectionString = config.GetConnectionString("DefaultConnection");
+            var connectionString = config.GetConnectionString("KhoiConnection");
             var optionsBuilder = new DbContextOptionsBuilder<UniticDbContext>();
             optionsBuilder.UseSqlServer(connectionString);
 
