@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -38,7 +38,6 @@ namespace Unitic_BE.Controllers
             try
             {
                 //Console.WriteLine("Starting Google login process");
-
                 // Configure the redirect URI to be the google-response endpoint
                 var properties = new AuthenticationProperties
                 {
@@ -49,8 +48,6 @@ namespace Unitic_BE.Controllers
                     //    { "returnUrl", "/signin-google" } // Where to redirect after successful authentication]
                     //}
                 };
-                //foreach (var item in properties.Items)
-                //Console.WriteLine($"Test gia tri url tra ve: {item} ");
 
                 // Gọi đến google login.
                 return Challenge(properties, GoogleOpenIdConnectDefaults.AuthenticationScheme);
@@ -64,7 +61,6 @@ namespace Unitic_BE.Controllers
 
 
         [HttpGet("google-response")]
-        //[HttpGet("/signin-google")]
         public async Task<IActionResult> GoogleResponse()
         {
             //Console.WriteLine("Processing Google response");
@@ -77,7 +73,7 @@ namespace Unitic_BE.Controllers
                 }
                 // Thông tin người dùng
                 var email = User.FindFirst(ClaimTypes.Email)?.Value;
-                var name = User.FindFirst(ClaimTypes.Name)?.Value;
+                var name = User.FindFirst(ClaimTypes.GivenName)?.Value;
                 var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 //Console.WriteLine($"Google user authenticated successfully: {email}");
 

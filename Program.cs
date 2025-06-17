@@ -80,23 +80,6 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IGoogleService, GoogleService>();
 
-
-// Test connection db
-
-//string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-//try
-//{
-//    using var connection = new SqlConnection(connectionString);
-//    connection.Open();
-//    Console.WriteLine(" Connection successful.");
-//}
-//catch (Exception ex)
-//{
-//    Console.WriteLine(" Connection failed:");
-//    Console.WriteLine(ex.Message);
-//}
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
