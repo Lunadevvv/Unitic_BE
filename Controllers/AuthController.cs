@@ -37,17 +37,18 @@ namespace Unitic_BE.Controllers
                 return BadRequest("Invalid login request.");
             }
             await _accountService.LoginAsync(loginRequest);
-            return Ok("Login successful.");
+            return Ok(HttpContext.Request.Headers["Authorization"]);
         }
         [HttpPost("logout")]
         [Authorize(Policy = "User")]
         public async Task<IActionResult> LogoutAsync()
         {
-            //if (string.IsNullOrEmpty(token))
-            //{
-            //    return BadRequest("Invalid token.");
-            //}
-            //await _accountService.LogoutAsync(token);
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            if (string.IsNullOrEmpty(token))
+            {
+                return BadRequest("Invalid token.");
+            }
+            await _accountService.LogoutAsync(token);
             return Ok("Logout successful.");
         }
 

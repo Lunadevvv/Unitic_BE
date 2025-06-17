@@ -12,7 +12,7 @@ using Unitic_BE;
 namespace Unitic_BE.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250617152401_Init")]
+    [Migration("20250617161848_Init")]
     partial class Init
     {
         /// <inheritdoc />

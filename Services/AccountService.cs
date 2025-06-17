@@ -87,7 +87,7 @@ public class AccountService : IAccountService
         //không có user thì ném ra exception
         if (user == null)
         {
-            throw new TokenException("Invalid token");
+            throw new TokenException("No User Found");
         }
         //gernater jwt token dựa trên role và user
         IList<string> roles = await _userManager.GetRolesAsync(user);
