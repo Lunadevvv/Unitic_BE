@@ -1,75 +1,57 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Reflection.Metadata.Ecma335;
-using System.Security.Claims;
-using System.Text;
-using Unitic_BE.Dtos;
-using Unitic_BE.Services.Interfaces;
+using Unitic_BE.Abstracts;
+using Unitic_BE.Requests;
+using Unitic_BE.Services;
 
 namespace Unitic_BE.Controllers
 {
-    [Route("UniTic/[controller]")]
+    [Route("Unitic/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authService;
-        private readonly IConfiguration _config;
-    
-        public AuthController(IAuthService authService, IConfiguration config)
+        private readonly IAccountService _accountService;
+
+        public AuthController(IAccountService service)
         {
-            _authService = authService;
-            _config = config;
+            // Constructor logic if needed
+            _accountService = service;
+
         }
-
-      
-
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto registerUser)
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest registerRequest)
         {
-            if(registerUser == null)
-                return BadRequest("Invalid user data");
-            await _authService.Register(registerUser);
-            return Ok("User registered successfully");
+            if (registerRequest == null)
+            {
+                return BadRequest("Invalid registration request.");
+            }
+            await _accountService.RegisterAsync(registerRequest);
+            return Ok("Registration successful.");
         }
-
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginUser)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginRequest loginRequest)
         {
-            var user = await _authService.GetUser(loginUser);
-            //check có user
-            if (user == null)
-                return Unauthorized("Invalid username or password");
-            //có user thì generate token
-            var claims = new[]
+            if (loginRequest == null)
             {
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),// mã định danh token
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()), // định danh user
-                new Claim(ClaimTypes.Name, loginUser.UserName)
-             };
-
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_config["Jwt:exp"])), 
-                signingCredentials: creds
-            );
-
-            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-
-            // 3. Trả về token
-            return Ok(new LoginResponseDto
-            {
-                Token = tokenString,
-                Expire = token.ValidTo
-            });
+                return BadRequest("Invalid login request.");
+            }
+            await _accountService.LoginAsync(loginRequest);
+            return Ok("Login successful.");
         }
+        [HttpPost("logout")]
+        [Authorize(Policy = "User")]
+        public async Task<IActionResult> LogoutAsync()
+        {
+            //if (string.IsNullOrEmpty(token))
+            //{
+            //    return BadRequest("Invalid token.");
+            //}
+            //await _accountService.LogoutAsync(token);
+            return Ok("Logout successful.");
+        }
+
     }
+
 }
+

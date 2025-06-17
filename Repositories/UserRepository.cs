@@ -1,45 +1,53 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Unitic_BE.Models;
-using Unitic_BE.Repositories.Interfaces;
+﻿
+using Microsoft.EntityFrameworkCore;
+using Unitic_BE;
+using Unitic_BE.Abstracts;
+using Unitic_BE.Entities;
 
-namespace Unitic_BE.Repositories
+namespace Unitic_BE.Repositories;
+
+public class UserRepository : IUserRepository
 {
-    public class UserRepository : IUserRepository
+    private readonly ApplicationDbContext _applicationDbContext;
+
+    public UserRepository(ApplicationDbContext applicationDbContext)
     {
-        private readonly UniticDbContext? _context;
-        private readonly ILogger<UserRepository> _logger;
-
-        public UserRepository(UniticDbContext context, ILogger<UserRepository> logger)
-        {
-            _context = context;
-            _logger = logger;
-        }
-
-        public async Task DeleteUserAsync(int id)
-        {
-            var user = await _context!.Users.FindAsync(id);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        public async Task<User?> GetUserByIdAsync(int id)
-        {
-            return await _context!.Users.FindAsync(id);
-        }
-
-        public async Task UpdateUserAsync(User user)
-        {
-            _logger.LogInformation($"UserId: {user.UserId}");
-            _context!.Users.Update(user);
-            await _context.SaveChangesAsync();
-        }
+        _applicationDbContext = applicationDbContext;
     }
+
+    public async Task<string> GetLastId()
+    {
+        string id = await _applicationDbContext.Users
+            .OrderByDescending(u => u.Id)
+            .Select(u => u.Id)
+            .FirstOrDefaultAsync();
+        return id;
+    }
+
+    public async Task<string> GetUniversityIdByNameAsync(string universityName)
+    {
+        var university = await _applicationDbContext.Universities
+            .FirstOrDefaultAsync(u => u.Name == universityName);
+        if(university != null)
+        {
+            return university.Id;
+        }
+        return null;
+    }
+
+    public async Task<User> GetUserById(string userId)
+    {
+        var user = await _applicationDbContext.Users
+            .FirstOrDefaultAsync(u => u.Id == userId);
+        return user;
+    }
+
+    public async Task<User?> GetUserByTokenAsync(string token)
+    {
+        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(x => x.Token == token && x.TokenExpiresAtUtc > DateTime.UtcNow);
+
+        return user;
+    }
+
+    
 }
