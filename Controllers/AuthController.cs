@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Unitic_BE.Abstracts;
@@ -49,14 +53,12 @@ namespace Unitic_BE.Controllers
         }
 
         [HttpPost("logout")]
-        [Authorize(Policy = "User")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> LogoutAsync()
         {
-            //thêm value rỗng vào ACCESS_TOKEN cookie để xóa token hiện tại
-            HttpContext.Response.Cookies.Append("ACCESS_TOKEN",
-                "");
+            Response.Cookies.Delete("ACCESS_TOKEN"); // Xóa cookie đăng nhập
 
-            return Ok("Log out sucessful");
+            return Ok("Log out successful");
         }
 
     }

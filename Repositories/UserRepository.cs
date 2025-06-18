@@ -1,4 +1,6 @@
 ﻿
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Unitic_BE;
 using Unitic_BE.Abstracts;
@@ -41,8 +43,5 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.Id == userId);
         return user;
     }
-
-
-
     
 }

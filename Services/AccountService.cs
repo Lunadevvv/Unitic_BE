@@ -71,11 +71,14 @@ public class AccountService : IAccountService
 
         var (jwtToken, expirationDateInUtc) = _authTokenProcessor.GenerateJwtToken(user, roles);
 
-        _authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("ACESS_TOKEN", jwtToken, expirationDateInUtc);
+        _authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("ACCESS_TOKEN", jwtToken, expirationDateInUtc);
         return jwtToken;
     }
 
-
+    public async Task<User> GetCurrentUserAsync(string userId)
+    {
+        return await _userRepository.GetUserById(userId);
+    }
 
 
     private string GetStringIdentityRoleName(Role role)
