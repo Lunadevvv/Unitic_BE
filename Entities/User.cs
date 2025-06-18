@@ -12,8 +12,7 @@ public class User : IdentityUser<string>
     public string Mssv { get; set; } 
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
-    public string? Token { get; set; }
-    public DateTime? TokenExpiresAtUtc { get; set; }
+
     public required string UniversityId { get; set; } // FK từ bảng university
 
     [ForeignKey("UniversityId")]

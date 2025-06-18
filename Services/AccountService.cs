@@ -55,13 +55,13 @@ public class AccountService : IAccountService
         }
     }
 
-    public async Task LoginAsync(LoginRequest loginRequest)
+    public async Task<string> LoginAsync(LoginRequest loginRequest)
     {
         //tìm user dựa trên login request
         var user = await _userManager.FindByEmailAsync(loginRequest.Email);
         //không có user hoặc mật khẩu không đúng thì ném ra exception
         var result = await _userManager.CheckPasswordAsync(user, loginRequest.Password);
-      
+
         if (user == null || result == false)
         {
             throw new LoginFailedException(loginRequest.Email);
@@ -71,36 +71,11 @@ public class AccountService : IAccountService
 
         var (jwtToken, expirationDateInUtc) = _authTokenProcessor.GenerateJwtToken(user, roles);
 
-
-        user.Token = jwtToken;
-        user.TokenExpiresAtUtc = expirationDateInUtc;
-
-        //thêm token vào bảng user
-        await _userManager.UpdateAsync(user);
-        _authTokenProcessor.WriteAuthTokenAsHeader(jwtToken, expirationDateInUtc);
+        _authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("ACESS_TOKEN", jwtToken, expirationDateInUtc);
+        return jwtToken;
     }
 
-    public async Task LogoutAsync(string token)
-    {
-        //tìm user dựa trên token
-        var user = await _userRepository.GetUserByTokenAsync(token);
-        //không có user thì ném ra exception
-        if (user == null)
-        {
-            throw new TokenException("No User Found");
-        }
-        //gernater jwt token dựa trên role và user
-        IList<string> roles = await _userManager.GetRolesAsync(user);
 
-        var (jwtToken, expirationDateInUtc) = _authTokenProcessor.GenerateExpiredJwtToken(user, roles);
-        user.Token = jwtToken; //cập nhật token thành expired token
-        user.TokenExpiresAtUtc = expirationDateInUtc; //cập nhật thời gian hết hạn token
-        await _userManager.UpdateAsync(user);
-        _authTokenProcessor.WriteAuthTokenAsLogOutToken(jwtToken, expirationDateInUtc); //viết token vào header để server biết token đã hết hạn
-
-        //chức năng này chỉ thay thế token header ở phía server, không xóa ở phía client
-        //FE sẽ xóa token ở phía client bằng cách xóa localstorage
-    }
 
 
     private string GetStringIdentityRoleName(Role role)

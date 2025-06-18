@@ -70,8 +70,6 @@ namespace Unitic_BE.Migrations
                     Mssv = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
-                    Token = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TokenExpiresAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UniversityId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Unitic_BE.Abstracts;
 using Unitic_BE.Requests;
 using Unitic_BE.Services;
+using WebTicket.Domain.Requests;
 
 namespace Unitic_BE.Controllers
 {
@@ -29,6 +30,7 @@ namespace Unitic_BE.Controllers
             await _accountService.RegisterAsync(registerRequest);
             return Ok("Registration successful.");
         }
+
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginRequest loginRequest)
         {
@@ -36,20 +38,25 @@ namespace Unitic_BE.Controllers
             {
                 return BadRequest("Invalid login request.");
             }
-            await _accountService.LoginAsync(loginRequest);
-            return Ok(HttpContext.Request.Headers["Authorization"]);
+            string acessToken = await _accountService.LoginAsync(loginRequest);
+
+            return Ok(new LoginResponse
+            {
+                Message = "Login successful.",
+                // Trả về token vào response body để tránh độ trễ lần đầu tạo cookie
+                Token = acessToken
+            });
         }
+
         [HttpPost("logout")]
         [Authorize(Policy = "User")]
         public async Task<IActionResult> LogoutAsync()
         {
-            var token = HttpContext.Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            if (string.IsNullOrEmpty(token))
-            {
-                return BadRequest("Invalid token.");
-            }
-            await _accountService.LogoutAsync(token);
-            return Ok("Logout successful.");
+            //thêm value rỗng vào ACCESS_TOKEN cookie để xóa token hiện tại
+            HttpContext.Response.Cookies.Append("ACCESS_TOKEN",
+                "");
+
+            return Ok("Log out sucessful");
         }
 
     }

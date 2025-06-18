@@ -42,12 +42,7 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-    public async Task<User?> GetUserByTokenAsync(string token)
-    {
-        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(x => x.Token == token && x.TokenExpiresAtUtc > DateTime.UtcNow);
 
-        return user;
-    }
 
     
 }
