@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,7 @@ namespace Unitic_BE
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IAuthTokenProcessor, AuthTokenProcessor>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IGoogleService, GoogleService>();
 
 
             //lấy JwtOptions từ appsettings.json
@@ -43,8 +45,8 @@ namespace Unitic_BE
                 opt.Lockout.MaxFailedAccessAttempts = int.MaxValue;
 
 
-            }).AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddUserValidator<CustomUserValidator>();
+            }).AddEntityFrameworkStores<ApplicationDbContext>();
+            // .AddUserValidator<CustomUserValidator>();
 
             builder.Services.AddDbContext<ApplicationDbContext>(opt =>
             {
@@ -58,7 +60,22 @@ namespace Unitic_BE
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 opt.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
+            })
+            // Google Authentication
+            .AddCookie()
+            .AddGoogleOpenIdConnect(options =>
+            {
+                options.ClientId = builder.Configuration["Google:ClientId"];
+                options.ClientSecret = builder.Configuration["Google:ClientSecret"];
+                options.CallbackPath = "/signin-google";
+                //options.CallbackPath = "/Unitic/Auth/google-response";
+                // options.SaveTokens = true;
+                options.Scope.Add("email");
+                options.Scope.Add("profile");
+                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            // JWT Authentication (for API endpoints)
+            .AddJwtBearer(options =>
             {
                 //ánh xạ JwtOptions từ appsettings.json vào jwtOptions để lấy jwtOption
                 var jwtOptions = builder.Configuration.GetSection(JwtOptions.JwtOptionsKey)
@@ -117,6 +134,7 @@ namespace Unitic_BE
 
             app.UseHttpsRedirection(); //chuyển hướng http tới https
             app.UseExceptionHandler();
+            
             app.UseAuthentication();
             app.UseAuthorization();
 

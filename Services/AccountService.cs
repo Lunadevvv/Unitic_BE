@@ -35,7 +35,7 @@ public class AccountService : IAccountService
         var universityId = await _userRepository.GetUniversityIdByNameAsync(registerRequest.UniversityName.Trim());
         string id = await GenerateUserId();
         //tạo user mới
-        var user = User.Create(registerRequest.Password, id, registerRequest.Mssv.Trim() ,registerRequest.Email.Trim(), registerRequest.FirstName.Trim(), registerRequest.LastName.Trim(), registerRequest.PhoneNumber.Trim(), universityId);
+        var user = User.Create(id, registerRequest.Mssv.Trim() ,registerRequest.Email.Trim(), registerRequest.FirstName.Trim(), registerRequest.LastName.Trim(), universityId);
         user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, registerRequest.Password); //hash password trước khi lưu vào bảng AspNetUsers
         //gọi hàm CreateAsync để vừa check validate vừa lưu vào bảng AspNetUsers
         var result = await _userManager.CreateAsync(user);

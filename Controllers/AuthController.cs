@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Google.Apis.Auth.AspNetCore3;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,13 +18,55 @@ namespace Unitic_BE.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IGoogleService _googleService;
 
-        public AuthController(IAccountService service)
+        public AuthController(IAccountService service, IGoogleService googleService)
         {
             // Constructor logic if needed
             _accountService = service;
-
+            _googleService = googleService;
         }
+
+        [HttpGet("google-login")]
+        public IActionResult GoogleLogin()
+        {
+            try
+            {
+                // Redirect to Google authentication
+                var redirectUrl = Url.Action(nameof(GoogleResponse), "Auth", null, Request.Scheme);
+                var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+                return Challenge(properties, GoogleOpenIdConnectDefaults.AuthenticationScheme);
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+        }
+
+        [HttpGet("google-response")]
+        public async Task<IActionResult> GoogleResponse()
+        {
+            try
+            {
+                // Get the Google user information from the authentication result
+                var authenticateResult = await HttpContext.AuthenticateAsync(GoogleOpenIdConnectDefaults.AuthenticationScheme);
+                if (!authenticateResult.Succeeded)
+                {
+                    return Unauthorized();
+                }
+
+                string token = await _googleService.LoginWithGoogleAsync(authenticateResult.Principal);
+
+                return Ok(new { Message = "Login successful.", Token = token });
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest registerRequest)
         {
@@ -54,7 +97,7 @@ namespace Unitic_BE.Controllers
 
         [HttpPost("logout")]
         [Authorize(Roles = "User")]
-        public async Task<IActionResult> LogoutAsync()
+        public IActionResult Logout()
         {
             Response.Cookies.Delete("ACCESS_TOKEN"); // Xóa cookie đăng nhập
 
