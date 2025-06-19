@@ -12,7 +12,7 @@ using Unitic_BE;
 namespace Unitic_BE.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250619130429_Init")]
+    [Migration("20250619170337_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -289,7 +289,6 @@ namespace Unitic_BE.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("UniversityId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("UserName")
@@ -370,8 +369,7 @@ namespace Unitic_BE.Migrations
                     b.HasOne("Unitic_BE.Entities.University", "University")
                         .WithMany("Users")
                         .HasForeignKey("UniversityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("University");
                 });

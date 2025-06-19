@@ -286,7 +286,6 @@ namespace Unitic_BE.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("UniversityId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("UserName")
@@ -367,8 +366,7 @@ namespace Unitic_BE.Migrations
                     b.HasOne("Unitic_BE.Entities.University", "University")
                         .WithMany("Users")
                         .HasForeignKey("UniversityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("University");
                 });

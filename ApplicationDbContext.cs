@@ -95,7 +95,8 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<string>
         builder.Entity<User>()
             .HasOne(u => u.University)
             .WithMany(u => u.Users)
-            .HasForeignKey(u => u.UniversityId);
+            .HasForeignKey(u => u.UniversityId)
+            .OnDelete(DeleteBehavior.SetNull); 
 
 
     }

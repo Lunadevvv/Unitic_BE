@@ -91,7 +91,7 @@ public class CustomValidator
         bool a = false;
         foreach (var university in universityNames)
         {
-            if (university.Equals(register.UniversityName, StringComparison.OrdinalIgnoreCase))
+            if (university.Equals(register.UniversityName))
             {
                 a = true;
                 break;

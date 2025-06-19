@@ -12,7 +12,7 @@ public class User : IdentityUser<string>
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
 
-    public required string UniversityId { get; set; } // FK từ bảng university
+    public string? UniversityId { get; set; } // FK từ bảng university
 
     [ForeignKey("UniversityId")]
     public University? University { get; set; } // Navigation property
