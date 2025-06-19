@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Unitic_BE.Abstracts;
 using Unitic_BE.Requests;
 using Unitic_BE.Services;
-using WebTicket.Domain.Requests;
+using Unitic_BE.Requests;
 
 namespace Unitic_BE.Controllers
 {

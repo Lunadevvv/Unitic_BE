@@ -30,7 +30,8 @@ namespace Unitic_BE
             builder.Services.AddScoped<IAuthTokenProcessor, AuthTokenProcessor>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IGoogleService, GoogleService>();
-
+            builder.Services.AddScoped<IUniversityRepository, UniversityRepository>();
+            builder.Services.AddScoped<IUniversityService, UniversityService>();
 
             //lấy JwtOptions từ appsettings.json
             //ánh xạ vào property trong JwtOptions class qua DI
@@ -47,6 +48,8 @@ namespace Unitic_BE
 
             }).AddEntityFrameworkStores<ApplicationDbContext>();
             // .AddUserValidator<CustomUserValidator>();
+            //add custom user validator
+            builder.Services.AddScoped<CustomValidator>();
 
             builder.Services.AddDbContext<ApplicationDbContext>(opt =>
             {
