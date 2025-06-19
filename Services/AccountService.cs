@@ -5,6 +5,7 @@ using Unitic_BE.Entities;
 using Unitic_BE.Enums;
 using Unitic_BE.Requests;
 using Unitic_BE.Exceptions;
+using Unitic_BE.Contracts;
 
 namespace Unitic_BE.Services;
 
@@ -102,4 +103,29 @@ public class AccountService : IAccountService
         return generatedId;
     }
 
+    public async Task<string> ForgotPassword(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user == null)
+        {
+            throw new Exception("User not found!");
+        }
+
+        var (resetToken, expirationDateInUtc) = _authTokenProcessor.GenerateResetJwtToken(user);
+        _authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("RESET_TOKEN", resetToken, expirationDateInUtc);
+        return resetToken;
+    }
+
+    public async Task ResetPassword(string? userId, string newPassword)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            throw new Exception("User not found!");
+        }
+        user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, newPassword);
+
+        await _userManager.UpdateAsync(user);
+    }
 }

@@ -25,13 +25,6 @@ namespace Unitic_BE
 
             builder.Services.AddControllers();
 
-            //DI service, repository
-            builder.Services.AddScoped<IAccountService, AccountService>();
-            builder.Services.AddScoped<IAuthTokenProcessor, AuthTokenProcessor>();
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<IGoogleService, GoogleService>();
-
-
             //lấy JwtOptions từ appsettings.json
             //ánh xạ vào property trong JwtOptions class qua DI
             builder.Services.Configure<JwtOptions>(
@@ -126,12 +119,21 @@ namespace Unitic_BE
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             builder.Services.AddProblemDetails(); // <<== Cái này bắt buộc để tránh lỗi cấu hình
 
+            //Setting Gmail Options
+            builder.Services.Configure<GmailOptions>(
+                builder.Configuration.GetSection(GmailOptions.GmailOptionsKey)
+            );
 
+            //DI service, repository
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IAuthTokenProcessor, AuthTokenProcessor>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IGoogleService, GoogleService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-
-
             app.UseHttpsRedirection(); //chuyển hướng http tới https
             app.UseExceptionHandler();
             

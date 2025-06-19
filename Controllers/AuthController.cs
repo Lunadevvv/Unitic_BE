@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Unitic_BE.Abstracts;
+using Unitic_BE.Contracts;
 using Unitic_BE.Requests;
 using Unitic_BE.Services;
 using WebTicket.Domain.Requests;
@@ -19,12 +20,14 @@ namespace Unitic_BE.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly IGoogleService _googleService;
+        private readonly IEmailService _emailService;
 
-        public AuthController(IAccountService service, IGoogleService googleService)
+        public AuthController(IAccountService service, IGoogleService googleService, IEmailService emailService)
         {
             // Constructor logic if needed
             _accountService = service;
             _googleService = googleService;
+            _emailService = emailService;
         }
 
         [HttpGet("google-login")]
@@ -96,7 +99,7 @@ namespace Unitic_BE.Controllers
         }
 
         [HttpPost("logout")]
-        [Authorize(Roles = "User")]
+        [Authorize]
         public IActionResult Logout()
         {
             Response.Cookies.Delete("ACCESS_TOKEN"); // Xóa cookie đăng nhập
@@ -104,6 +107,28 @@ namespace Unitic_BE.Controllers
             return Ok("Log out successful");
         }
 
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest forgotPasswordRequest)
+        {
+            var token = await _accountService.ForgotPassword(forgotPasswordRequest.Email);
+
+            var body = $"Testing {token}";
+            var sendEmailRequest = new SendEmailRequest(forgotPasswordRequest.Email, "Reset Password", body);
+            await _emailService.SendEmailAsync(sendEmailRequest);
+            return Ok("Please check your email!");
+        }
+
+        [HttpPost("reset-password")]
+        [Authorize]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest resetPasswordRequest)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            await _accountService.ResetPassword(userId, resetPasswordRequest.NewPassword);
+
+            Response.Cookies.Delete("RESET_TOKEN");
+            return Ok("Reset password successfully!");
+        }
     }
 
 }
