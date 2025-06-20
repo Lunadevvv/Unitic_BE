@@ -81,12 +81,6 @@ public class AccountService : IAccountService
         return jwtToken;
     }
 
-    public async Task<User> GetCurrentUserAsync(string userId)
-    {
-        return await _userRepository.GetUserById(userId);
-    }
-
-
     private string GetStringIdentityRoleName(Role role)
     {
         return role switch
@@ -131,6 +125,30 @@ public class AccountService : IAccountService
         }
         user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, newPassword);
 
+        await _userManager.UpdateAsync(user);
+    }
+
+    public async Task ChangePassword(string? userId, ChangePasswordRequest changePasswordRequest)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            throw new Exception("User not found!");
+        }
+
+        var passwordValid = await _userManager.CheckPasswordAsync(user, changePasswordRequest.OldPassword);
+        if (!passwordValid)
+        {
+            throw new Exception("Current password is incorrect!");
+        }
+
+        var (erros, isValid) = await _validator.ValidateChangePasswordAsync(changePasswordRequest);
+        if (!isValid)
+        {
+            throw new Exception("Your new password need have 8-16 characters!");
+        }
+
+        user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, changePasswordRequest.NewPassword);
         await _userManager.UpdateAsync(user);
     }
 }

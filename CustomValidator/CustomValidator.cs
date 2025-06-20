@@ -30,7 +30,7 @@ public class CustomValidator
         {
             errors.Add(new ErrorResponse
             {
-   
+
                 Description = "\nPassword must be at minimum 8 characters long"
             });
         }
@@ -38,7 +38,7 @@ public class CustomValidator
         {
             errors.Add(new ErrorResponse
             {
-              
+
                 Description = "\nPassword must be at maximum 16 characters long"
             });
         }
@@ -48,7 +48,7 @@ public class CustomValidator
         {
             errors.Add(new ErrorResponse
             {
-     
+
                 Description = "\nFirst name can't be null"
             });
         }
@@ -57,7 +57,7 @@ public class CustomValidator
         if (!Regex.IsMatch(register.FirstName, @"^\p{L}+$"))
             errors.Add(new ErrorResponse
             {
-         
+
                 Description = "\nFirst name contains only characters"
             });
 
@@ -66,7 +66,7 @@ public class CustomValidator
         {
             errors.Add(new ErrorResponse
             {
-         
+
                 Description = "\nLast name can't be null"
             });
         }
@@ -84,7 +84,7 @@ public class CustomValidator
         {
             errors.Add(new ErrorResponse
             {
-         
+
                 Description = "\nUniversity ID can't be null"
             });
         }
@@ -97,7 +97,7 @@ public class CustomValidator
                 break;
             }
         }
-        if(!a)
+        if (!a)
         {
             errors.Add(new ErrorResponse
             {
@@ -106,13 +106,35 @@ public class CustomValidator
         }
         return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
     }
-    public async Task<(List<string>, bool)> ValidateUniversityAsync(UniversityRequest request){
+    public async Task<(List<string>, bool)> ValidateUniversityAsync(UniversityRequest request)
+    {
         var errors = new List<ErrorResponse>();
         if (!Regex.IsMatch(request.Name, @"^Đại học( [A-ZÀ-Ỵ][a-zà-ỹ]*)+$"))
         {
             errors.Add(new ErrorResponse
             {
                 Description = "\nUniversity name must start with 'Đại học' each character at the start of university name must be uppercase"
+            });
+        }
+        return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
+    }
+    
+    public async Task<(List<string>, bool)> ValidateChangePasswordAsync(ChangePasswordRequest request){
+        var errors = new List<ErrorResponse>();
+        if (request.NewPassword.Length < 8)
+        {
+            errors.Add(new ErrorResponse
+            {
+
+                Description = "\nPassword must be at minimum 8 characters long"
+            });
+        }
+        if (request.NewPassword.Length > 16)
+        {
+            errors.Add(new ErrorResponse
+            {
+
+                Description = "\nPassword must be at maximum 16 characters long"
             });
         }
         return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);

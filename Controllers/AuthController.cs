@@ -129,6 +129,19 @@ namespace Unitic_BE.Controllers
             Response.Cookies.Delete("RESET_TOKEN");
             return Ok("Reset password successfully!");
         }
+
+        [HttpPost("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest changePasswordRequest)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+                return Unauthorized("Invalid User!");
+
+            await _accountService.ChangePassword(userId, changePasswordRequest);
+            return Ok("Changed Password successfully!");
+        }
     }
 
 }

@@ -132,6 +132,8 @@ namespace Unitic_BE
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IGoogleService, GoogleService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IUniversityService, UniversityService>();
+            builder.Services.AddScoped<IUniversityRepository, UniversityRepository>();
             
             var app = builder.Build();
 
