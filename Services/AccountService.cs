@@ -14,17 +14,22 @@ public class AccountService : IAccountService
     private readonly IAuthTokenProcessor _authTokenProcessor;
     private readonly UserManager<User> _userManager;
     private readonly IUserRepository _userRepository;
-
-    public AccountService(IAuthTokenProcessor authTokenProcessor, UserManager<User> userManager,
-        IUserRepository userRepository)
+    private readonly CustomValidator _validator;
+    private readonly IUniversityService _universityService;
+    public AccountService(IAuthTokenProcessor authTokenProcessor, UserManager<User> userManager, CustomValidator validator,
+        IUserRepository userRepository, IUniversityService universityService)
     {
         _authTokenProcessor = authTokenProcessor;
         _userManager = userManager;
         _userRepository = userRepository;
+        _validator = validator;
+        _universityService = universityService;
     }
 
     public async Task RegisterAsync(RegisterRequest registerRequest)
     {
+        //trim all
+        StringTrimmerExtension.TrimAllString(registerRequest);
         //check xem user đã tồn tại chưa
         var userExists = await _userManager.FindByEmailAsync(registerRequest.Email) != null;
 
@@ -32,32 +37,32 @@ public class AccountService : IAccountService
         {
             throw new UserAlreadyExistsException(email: registerRequest.Email);
         }
+        //validate registerRequest
+        List<string> universityNames = await _universityService.GetAllUniversityNames();
+        var (erros, isValid) = await _validator.ValidateUserAsync(registerRequest, universityNames);
+        // nếu không thành công do validate thì ném ra exception
+        if (!isValid)
+        {
+            throw new RegistrationFailedException(erros);
+        }
         //tìm university và tạo id user
-        var universityId = await _userRepository.GetUniversityIdByNameAsync(registerRequest.UniversityName.Trim());
+
+        var universityId = await _userRepository.GetUniversityIdByNameAsync(registerRequest.UniversityName);
         string id = await GenerateUserId();
         //tạo user mới
-        var user = User.Create(id, registerRequest.Mssv.Trim() ,registerRequest.Email.Trim(), registerRequest.FirstName.Trim(), registerRequest.LastName.Trim(), universityId);
+        var user = User.Create(registerRequest.Password, id, registerRequest.Mssv, registerRequest.Email, registerRequest.FirstName, registerRequest.LastName, universityId);
         user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, registerRequest.Password); //hash password trước khi lưu vào bảng AspNetUsers
-        //gọi hàm CreateAsync để vừa check validate vừa lưu vào bảng AspNetUsers
-        var result = await _userManager.CreateAsync(user);
-        // nếu không thành công do validate thì ném ra exception
-        if (!result.Succeeded)
-        {
-            throw new RegistrationFailedException(result.Errors.Select(x => x.Description));
-        }
-
+                                                                                                      //gọi hàm CreateAsync để vừa check validate vừa lưu vào bảng AspNetUsers
+        await _userManager.CreateAsync(user);
         //gán user với role vào bảng ASpNetUserRoles
         var addRoleResult = await _userManager.AddToRoleAsync(user, GetStringIdentityRoleName(Role.User));
         await _userManager.UpdateAsync(user); //cập nhật user sau khi thêm role
-        if (!addRoleResult.Succeeded)
-        {
-            // Log hoặc ném exception để biết lỗi
-            throw new Exception("Add role failed: " + string.Join(", ", addRoleResult.Errors.Select(e => e.Description)));
-        }
     }
 
     public async Task<string> LoginAsync(LoginRequest loginRequest)
     {
+        //trim all
+        StringTrimmerExtension.TrimAllString(loginRequest);
         //tìm user dựa trên login request
         var user = await _userManager.FindByEmailAsync(loginRequest.Email);
         //không có user hoặc mật khẩu không đúng thì ném ra exception

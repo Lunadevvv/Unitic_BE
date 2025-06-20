@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Unitic_BE.Requests
 {
-    public class LoginResponse
+    public class ErrorResponse
     {
-        public string Message { get; set; }
-        public string Token { get; set; }
+        public string Description { get; set; }
     }
 }

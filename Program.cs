@@ -40,6 +40,8 @@ namespace Unitic_BE
 
             }).AddEntityFrameworkStores<ApplicationDbContext>();
             // .AddUserValidator<CustomUserValidator>();
+            //add custom user validator
+            builder.Services.AddScoped<CustomValidator>();
 
             builder.Services.AddDbContext<ApplicationDbContext>(opt =>
             {
