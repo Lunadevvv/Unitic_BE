@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Unitic_BE.Requests
+namespace Unitic_BE.DTOs.Responses
 {
     public class LoginResponse
     {

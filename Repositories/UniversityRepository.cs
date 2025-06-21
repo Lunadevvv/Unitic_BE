@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Unitic_BE.Abstracts;
-using Unitic_BE.Requests;
+using Unitic_BE.DTOs.Requests;
 using Unitic_BE.Entities;
 
 namespace Unitic_BE.Repositories

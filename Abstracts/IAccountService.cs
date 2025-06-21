@@ -1,5 +1,5 @@
 ﻿using Unitic_BE.Entities;
-using Unitic_BE.Requests;
+using Unitic_BE.DTOs.Requests;
 
 namespace Unitic_BE.Abstracts;
 

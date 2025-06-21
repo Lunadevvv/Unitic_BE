@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Unitic_BE.Abstracts;
-using Unitic_BE.Requests;
+using Unitic_BE.DTOs.Requests;
 using Unitic_BE.Entities;
 
 namespace Unitic_BE.Controllers

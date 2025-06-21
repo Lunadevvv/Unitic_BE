@@ -1,6 +1,6 @@
 ﻿using Unitic_BE.Enums;
 
-namespace Unitic_BE.Requests;
+namespace Unitic_BE.DTOs.Requests;
 
 public record RegisterRequest
 {

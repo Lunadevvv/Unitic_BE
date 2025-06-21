@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Unitic_BE.Requests
+namespace Unitic_BE.DTOs.Requests
 {
-    public class ChangePasswordRequest
+    public class ResetPasswordRequest
     {
-        public string OldPassword { get; set; } = string.Empty;
         public string NewPassword { get; set; } = string.Empty;
     }
 }

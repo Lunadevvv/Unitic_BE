@@ -7,7 +7,7 @@ using Unitic_BE.Entities;
 using Unitic_BE.Exceptions;
 using System.ComponentModel;
 using Unitic_BE.Abstracts;
-using Unitic_BE.Requests;
+using Unitic_BE.DTOs.Requests;
 
 public class CustomValidator
 {
@@ -101,7 +101,7 @@ public class CustomValidator
         {
             errors.Add(new ErrorResponse
             {
-                Description = "\nUniversity available: \n1. Đại học FPT\n2. Đại học Bách Khoa\n3. Đại học Khoa Học Tự Nhiên\n4. Đại học Công Nghệ Thông Tin"
+                Description = "Invalid University!"
             });
         }
         return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
@@ -118,8 +118,9 @@ public class CustomValidator
         }
         return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
     }
-    
-    public async Task<(List<string>, bool)> ValidateChangePasswordAsync(ChangePasswordRequest request){
+
+    public async Task<(List<string>, bool)> ValidateChangePasswordAsync(ChangePasswordRequest request)
+    {
         var errors = new List<ErrorResponse>();
         if (request.NewPassword.Length < 8)
         {
@@ -137,6 +138,44 @@ public class CustomValidator
                 Description = "\nPassword must be at maximum 16 characters long"
             });
         }
+        return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
+    }
+    
+    public async Task<(List<string>, bool)> ValidateUpdateProfileAsync(UpdateUserInformation request){
+        var errors = new List<ErrorResponse>();
+        //FirstName
+        if (string.IsNullOrWhiteSpace(request.FirstName))
+        {
+            errors.Add(new ErrorResponse
+            {
+
+                Description = "\nFirst name can't be null"
+            });
+        }
+        //chỉ chứa chữ cái
+        // \p{L} là ký tự chữ cái Unicode 
+        if (!Regex.IsMatch(request.FirstName, @"^\p{L}+$"))
+            errors.Add(new ErrorResponse
+            {
+
+                Description = "\nFirst name contains only characters"
+            });
+
+        //LastName
+        if (string.IsNullOrWhiteSpace(request.LastName))
+        {
+            errors.Add(new ErrorResponse
+            {
+
+                Description = "\nLast name can't be null"
+            });
+        }
+        if (!Regex.IsMatch(request.LastName, @"^\p{L}+$"))
+            errors.Add(new ErrorResponse
+            {
+
+                Description = "\nLast name contains only characters"
+            });
         return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
     }
 }

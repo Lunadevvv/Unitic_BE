@@ -134,6 +134,7 @@ namespace Unitic_BE
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IUniversityService, UniversityService>();
             builder.Services.AddScoped<IUniversityRepository, UniversityRepository>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
             
             var app = builder.Build();
 
