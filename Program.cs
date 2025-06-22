@@ -32,7 +32,8 @@ namespace Unitic_BE
             builder.Services.AddScoped<IGoogleService, GoogleService>();
             builder.Services.AddScoped<IUniversityRepository, UniversityRepository>();
             builder.Services.AddScoped<IUniversityService, UniversityService>();
-
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
             //lấy JwtOptions từ appsettings.json
             //ánh xạ vào property trong JwtOptions class qua DI
             builder.Services.Configure<JwtOptions>(

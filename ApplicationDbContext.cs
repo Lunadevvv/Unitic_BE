@@ -14,9 +14,11 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<string>
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
-    
+
     public DbSet<User> Users { get; set; }
     public DbSet<University> Universities { get; set; }
+    public DbSet<Event> Events { get; set; }
+    public DbSet<Category> Categories { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -24,7 +26,7 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<string>
         //quy định độ dài của các trường trong bảng User
         builder.Entity<User>()
             .Property(u => u.FirstName).HasMaxLength(256);
-        
+
         builder.Entity<User>()
             .Property(u => u.LastName).HasMaxLength(256);
         //Seed data mặc định vào bảng university
@@ -96,7 +98,12 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<string>
             .HasOne(u => u.University)
             .WithMany(u => u.Users)
             .HasForeignKey(u => u.UniversityId)
-            .OnDelete(DeleteBehavior.SetNull); 
+            .OnDelete(DeleteBehavior.SetNull);
+        builder.Entity<Event>()
+    .HasOne(e => e.Category)
+    .WithMany(u => u.Events)
+    .HasForeignKey(e => e.CateID)
+    .OnDelete(DeleteBehavior.SetNull); // Xóa sự kiện khi người tổ chức bị xóa
 
 
     }
