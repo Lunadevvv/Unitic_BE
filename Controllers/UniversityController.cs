@@ -16,14 +16,15 @@ namespace Unitic_BE.Controllers
             _universityService = universityService;
         }
 
-        [HttpGet("GetAll")]
+
+        [HttpGet]
         public async Task<IActionResult> GetAllUniversities()
         {
             var universities = await _universityService.GetAllUniversity();
             return Ok(universities);
         }
 
-        [HttpGet("Get/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetUniversityById(string id)
         {
             var university = await _universityService.GetUniversityById(id);
@@ -34,7 +35,7 @@ namespace Unitic_BE.Controllers
             return Ok(university);
         }
 
-        [HttpPost("Add")]
+        [HttpPost]
         public async Task<IActionResult> AddUniversity([FromBody] UniversityRequest university)
         {
             if (university == null)
@@ -45,7 +46,7 @@ namespace Unitic_BE.Controllers
             return Ok("University added successfully");
         }
 
-        [HttpPut("Update/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUniversity(string id, [FromBody] UniversityRequest request)
         {
             if (request == null)
@@ -56,7 +57,7 @@ namespace Unitic_BE.Controllers
             return Ok("University updated successfully");
         }
 
-        [HttpDelete("Delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUniversity(string id)
         {
             await _universityService.DeleteUniversityById(id);

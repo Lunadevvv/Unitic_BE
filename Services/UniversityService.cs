@@ -25,6 +25,7 @@ namespace Unitic_BE.Services
         {
             //trim all
             StringTrimmerExtension.TrimAllString(university);
+            //check xem universityName tồn tại chưa
             var universityExists = await _universityRepo.GetUniversityByName(university.Name);
             if (universityExists != null)
             {
@@ -41,9 +42,14 @@ namespace Unitic_BE.Services
             await _universityRepo.AddUniversity(add);
         }
 
-        public Task DeleteUniversityById(string id)
+        public async Task DeleteUniversityById(string id)
         {
-            return _universityRepo.DeleteUniversityById(id);
+            var university = await _universityRepo.GetUniversityById(id);
+            if (university == null)
+            {
+                throw new ObjectNotFoundException($"University with id {id}");
+            }
+            await _universityRepo.DeleteUniversityById(id);
         }
 
         public Task<List<University>> GetAllUniversity()
@@ -69,6 +75,12 @@ namespace Unitic_BE.Services
             if (universityExists != null)
             {
                 throw new UniversityNameAlreadyExistsException(university.Name);
+            }
+            //check xem universityUpdate có tồn tại ko
+            var universityId = await _universityRepo.GetUniversityById(id);
+            if (universityId == null)
+            {
+                throw new ObjectNotFoundException($"University with id {id}");
             }
             //validate
             var (erros, isValid) = await _validator.ValidateUniversityAsync(university);
