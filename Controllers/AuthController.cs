@@ -1,35 +1,33 @@
+﻿using System.Security.Claims;
+using Google.Apis.Auth.AspNetCore3;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Google.Apis.Auth.AspNetCore3;
-
-using System.IdentityModel.Tokens.Jwt;
-using System.Reflection.Metadata.Ecma335;
-using System.Security.Claims;
-using System.Text;
-
-using Unitic_BE.Dtos;
-using Unitic_BE.Services.Interfaces;
-using Unitic_BE.Models;
+using Unitic_BE.Abstracts;
+using Unitic_BE.Contracts;
+using Unitic_BE.Requests;
+using Unitic_BE.Services;
+using WebTicket.Domain.Requests;
 
 namespace Unitic_BE.Controllers
 {
-    [Route("UniTic/[controller]")]
+    [Route("Unitic/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authService;
-        private readonly IConfiguration _config;
+        private readonly IAccountService _accountService;
         private readonly IGoogleService _googleService;
-        
-        public AuthController(IAuthService authService, IConfiguration config, IGoogleService googleService)
+        private readonly IEmailService _emailService;
+
+        public AuthController(IAccountService service, IGoogleService googleService, IEmailService emailService)
         {
-            _authService = authService;
-            _config = config;
+            // Constructor logic if needed
+            _accountService = service;
             _googleService = googleService;
+            _emailService = emailService;
         }
 
         [HttpGet("google-login")]
@@ -37,117 +35,101 @@ namespace Unitic_BE.Controllers
         {
             try
             {
-                //Console.WriteLine("Starting Google login process");
-
-                // Configure the redirect URI to be the google-response endpoint
-                var properties = new AuthenticationProperties
-                {
-                    RedirectUri = Url.Action(nameof(GoogleResponse), "Auth", null, Request.Scheme),                    
-                    //Items =
-                    //{
-                    //    { "scheme", GoogleOpenIdConnectDefaults.AuthenticationScheme },
-                    //    { "returnUrl", "/signin-google" } // Where to redirect after successful authentication]
-                    //}
-                };
-                //foreach (var item in properties.Items)
-                //Console.WriteLine($"Test gia tri url tra ve: {item} ");
-
-                // Gọi đến google login.
+                // Redirect to Google authentication
+                var redirectUrl = Url.Action(nameof(GoogleResponse), "Auth", null, Request.Scheme);
+                var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
                 return Challenge(properties, GoogleOpenIdConnectDefaults.AuthenticationScheme);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error initiating Google login: {ex.Message}");
-                return StatusCode(500, $"Error initiating Google login: {ex.Message}");
+                // Handle exceptions
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
         }
 
-
         [HttpGet("google-response")]
-        //[HttpGet("/signin-google")]
         public async Task<IActionResult> GoogleResponse()
         {
-            //Console.WriteLine("Processing Google response");
             try
-            {              
-                if (!User.Identity.IsAuthenticated)
+            {
+                // Get the Google user information from the authentication result
+                var authenticateResult = await HttpContext.AuthenticateAsync(GoogleOpenIdConnectDefaults.AuthenticationScheme);
+                if (!authenticateResult.Succeeded)
                 {
-                    //Console.WriteLine("User not authenticated in GoogleResponse");
-                    return Unauthorized("Authentication failed");
+                    return Unauthorized();
                 }
-                // Thông tin người dùng
-                var email = User.FindFirst(ClaimTypes.Email)?.Value;
-                var name = User.FindFirst(ClaimTypes.Name)?.Value;
-                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                //Console.WriteLine($"Google user authenticated successfully: {email}");
 
-                var result = await HttpContext.AuthenticateAsync();
-                // JWT token
-                var idToken = result.Properties.GetTokenValue("id_token");
-                // Token use to access googleApi
-                var accessToken = result.Properties.GetTokenValue("access_token");
-                // Refresh token again
-                var refreshToken = result.Properties.GetTokenValue("refresh_token");
-                return Ok(new { email, name, id, idToken, accessToken, refreshToken, message = "Authentication successful" });
+                string token = await _googleService.LoginWithGoogleAsync(authenticateResult.Principal);
+
+                return Ok(new { Message = "Login successful.", Token = token });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Authentication error: {ex.Message}");
+                // Handle exceptions
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto registerUser)
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest registerRequest)
         {
-            if(registerUser == null)
-                return BadRequest("Invalid user data");
-            await _authService.Register(registerUser);
-            return Ok("User registered successfully");
+            if (registerRequest == null)
+            {
+                return BadRequest("Invalid registration request.");
+            }
+            await _accountService.RegisterAsync(registerRequest);
+            return Ok("Registration successful.");
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginUser)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginRequest loginRequest)
         {
-            var user = await _authService.GetUser(loginUser);
-            //check có user
-            if (user == null)
-                return Unauthorized("Invalid username or password");
-            //có user thì generate token
-            var claims = new[]
+            if (loginRequest == null)
             {
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),// mã định danh token
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()), // định danh user
-                new Claim(ClaimTypes.Name, loginUser.UserName)
-             };
+                return BadRequest("Invalid login request.");
+            }
+            string acessToken = await _accountService.LoginAsync(loginRequest);
 
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_config["Jwt:exp"])), 
-                signingCredentials: creds
-            );
-
-            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-
-            // 3. Trả về token
-            return Ok(new LoginResponseDto
+            return Ok(new LoginResponse
             {
-                Token = tokenString,
-                Expire = token.ValidTo
+                Message = "Login successful.",
+                // Trả về token vào response body để tránh độ trễ lần đầu tạo cookie
+                Token = acessToken
             });
         }
 
-
-        [HttpGet("logout")]
-        public async Task<IActionResult> Logout()
+        [HttpPost("logout")]
+        [Authorize]
+        public IActionResult Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Ok("Logout Succesful");
+            Response.Cookies.Delete("ACCESS_TOKEN"); // Xóa cookie đăng nhập
+
+            return Ok("Log out successful");
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest forgotPasswordRequest)
+        {
+            var token = await _accountService.ForgotPassword(forgotPasswordRequest.Email);
+
+            var body = $"Testing {token}";
+            var sendEmailRequest = new SendEmailRequest(forgotPasswordRequest.Email, "Reset Password", body);
+            await _emailService.SendEmailAsync(sendEmailRequest);
+            return Ok("Please check your email!");
+        }
+
+        [HttpPost("reset-password")]
+        [Authorize]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest resetPasswordRequest)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            await _accountService.ResetPassword(userId, resetPasswordRequest.NewPassword);
+
+            Response.Cookies.Delete("RESET_TOKEN");
+            return Ok("Reset password successfully!");
         }
     }
+
 }
+
