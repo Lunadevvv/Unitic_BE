@@ -32,10 +32,10 @@ namespace Unitic_BE.Services
                 throw new UniversityNameAlreadyExistsException(university.Name);
             }
             //validate
-            var (erros, isValid) = await _validator.ValidateUniversityAsync(university);
+            var (erros, isValid) =  _validator.ValidateUniversity(university);
             if (!isValid)
             {
-                throw new UpdateAddUniFailedException(erros);
+                throw new UpdateAddFailedException(erros);
             }
             University add = new University { Id = await GenerateUniId(), Name = university.Name };
             
@@ -71,8 +71,8 @@ namespace Unitic_BE.Services
         {
             //trim all
             StringTrimmerExtension.TrimAllString(university);
-            var universityExists = await _universityRepo.GetUniversityByName(university.Name);
-            if (universityExists != null)
+            var universityExists1 = await _universityRepo.GetUniversityByName(university.Name);
+            if (universityExists1 != null)
             {
                 throw new UniversityNameAlreadyExistsException(university.Name);
             }
@@ -82,11 +82,18 @@ namespace Unitic_BE.Services
             {
                 throw new ObjectNotFoundException($"University with id {id}");
             }
+            //check universityName đó đã tồn tại chưa
+            var universityExists = await _universityRepo.GetUniversityByName(university.Name);
+
+            if (universityExists != null && universityExists.Id != universityId.Id)
+            {
+                throw new UniversityNameAlreadyExistsException(university.Name);
+            }
             //validate
-            var (erros, isValid) = await _validator.ValidateUniversityAsync(university);
+            var (erros, isValid) = _validator.ValidateUniversity(university);
             if (!isValid)
             {
-                throw new UpdateAddUniFailedException(erros);
+                throw new UpdateAddFailedException(erros);
             }
             await _universityRepo.UpdateUniversityById(id, university);
         }
@@ -94,7 +101,7 @@ namespace Unitic_BE.Services
         {
             string lastId = await _universityRepo.GetLastId();
             if (lastId == null) return "Uni0001";
-            int id = int.Parse(lastId.Substring(4)) + 1; // lấy id cuối cùng và cộng thêm 1
+            int id = int.Parse(lastId.Substring(3)) + 1; // lấy id cuối cùng và cộng thêm 1
             string generatedId = "Uni" + id.ToString("D4"); //D4 là tự động fill hết 4 số
             return generatedId;
         }

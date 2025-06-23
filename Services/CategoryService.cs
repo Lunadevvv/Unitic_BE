@@ -71,7 +71,7 @@ namespace Unitic_BE.Services
             }
             //check categoryName tồn tại chưa
             var categoryExists = await _repo.GetCategoryByNameAsync(categoryRequest.Name);
-            if (categoryExists != null)
+            if (categoryExists != null && categoryExists.CateID != category.CateID)
             {
                 throw new ObjPropertyAlreadyExists(categoryRequest.Name);
             }

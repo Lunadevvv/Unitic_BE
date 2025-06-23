@@ -12,6 +12,9 @@ using Unitic_BE.Options;
 using Unitic_BE.Processors;
 using Unitic_BE.Repositories;
 using Unitic_BE.Services;
+using Unitic_BE.Abstracts;
+using Unitic_BE.Services;
+using WebTicket.Infrastructure.Repositories;
 
 namespace Unitic_BE
 {
@@ -34,6 +37,8 @@ namespace Unitic_BE
             builder.Services.AddScoped<IUniversityService, UniversityService>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IEventRepository, EventRepository>();
+            builder.Services.AddScoped<IEventService, EventService>();
             //lấy JwtOptions từ appsettings.json
             //ánh xạ vào property trong JwtOptions class qua DI
             builder.Services.Configure<JwtOptions>(

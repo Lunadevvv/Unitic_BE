@@ -94,16 +94,42 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<string>
                 }
 
             });
+        //seed data vào category
+        builder.Entity<Category>()
+           .HasData(new List<Category>
+           {
+                new Category
+                {
+                    CateID = "Cate0001",
+                    Name = "Entertainment",
+                },
+                new Category
+                {
+                    CateID = "Cate0002",
+                    Name = "Education",
+                },
+                new Category
+                {
+                    CateID = "Cate0003",
+                    Name = "Sharing",
+                },
+                new Category
+                {
+                    CateID = "Cate0004",
+                    Name = "Music",
+                }
+           });
+        //các mqh
         builder.Entity<User>()
             .HasOne(u => u.University)
             .WithMany(u => u.Users)
             .HasForeignKey(u => u.UniversityId)
             .OnDelete(DeleteBehavior.SetNull);
         builder.Entity<Event>()
-    .HasOne(e => e.Category)
-    .WithMany(u => u.Events)
-    .HasForeignKey(e => e.CateID)
-    .OnDelete(DeleteBehavior.SetNull); // Xóa sự kiện khi người tổ chức bị xóa
+       .HasOne(e => e.Category)
+       .WithMany(u => u.Events)
+       .HasForeignKey(e => e.CateID)
+       .OnDelete(DeleteBehavior.SetNull); // Xóa sự kiện khi người tổ chức bị xóa
 
 
     }

@@ -187,6 +187,82 @@ namespace Unitic_BE.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Unitic_BE.Entities.Category", b =>
+                {
+                    b.Property<string>("CateID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Is_Disable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CateID");
+
+                    b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            CateID = "Cate0001",
+                            Is_Disable = false,
+                            Name = "Entertainment"
+                        },
+                        new
+                        {
+                            CateID = "Cate0002",
+                            Is_Disable = false,
+                            Name = "Education"
+                        },
+                        new
+                        {
+                            CateID = "Cate0003",
+                            Is_Disable = false,
+                            Name = "Sharing"
+                        },
+                        new
+                        {
+                            CateID = "Cate0004",
+                            Is_Disable = false,
+                            Name = "Music"
+                        });
+                });
+
+            modelBuilder.Entity("Unitic_BE.Entities.Event", b =>
+                {
+                    b.Property<string>("EventID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CateID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("Date_End")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("Date_Start")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("EventID");
+
+                    b.HasIndex("CateID");
+
+                    b.ToTable("Events");
+                });
+
             modelBuilder.Entity("Unitic_BE.Entities.University", b =>
                 {
                     b.Property<string>("Id")
@@ -361,6 +437,16 @@ namespace Unitic_BE.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Unitic_BE.Entities.Event", b =>
+                {
+                    b.HasOne("Unitic_BE.Entities.Category", "Category")
+                        .WithMany("Events")
+                        .HasForeignKey("CateID")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("Unitic_BE.Entities.User", b =>
                 {
                     b.HasOne("Unitic_BE.Entities.University", "University")
@@ -369,6 +455,11 @@ namespace Unitic_BE.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("University");
+                });
+
+            modelBuilder.Entity("Unitic_BE.Entities.Category", b =>
+                {
+                    b.Navigation("Events");
                 });
 
             modelBuilder.Entity("Unitic_BE.Entities.University", b =>
