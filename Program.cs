@@ -15,6 +15,7 @@ using Unitic_BE.Services;
 using Unitic_BE.Abstracts;
 using Unitic_BE.Services;
 using WebTicket.Infrastructure.Repositories;
+using WebTicket.Infrastructure.Seeder;
 
 namespace Unitic_BE
 {
@@ -140,6 +141,14 @@ namespace Unitic_BE
 
             // Configure the HTTP request pipeline.
 
+            //Tạo scope để chạy seeder khởi tạo data ban đầu sau đó dispose scope
+            //khởi tạo data mỗi khi chạy app
+            using (var scope = app.Services.CreateScope())
+            {
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+                //cách khác để chạy đồng bộ trong hàm không phải async
+                Seeder.SeedAdminDataAsync(userManager).GetAwaiter().GetResult();
+            }
 
             app.UseHttpsRedirection(); //chuyển hướng http tới https
             app.UseExceptionHandler();

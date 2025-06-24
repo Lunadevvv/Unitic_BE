@@ -17,13 +17,12 @@ public class User : IdentityUser<string>
     [ForeignKey("UniversityId")]
     public University? University { get; set; } // Navigation property
     //factory method to create a new user instance
-    public static User Create(string password, string id, string mssv,string email, string firstName, string lastName, string universityId)
+    public static User Create(string id, string mssv,string email, string firstName, string lastName, string universityId)
     {
 
         //chuyển university name thành university id
         return new User
         {
-            PasswordHash = password,
             Id = id, // Id is the primary key, can be Guid or string
             Mssv = mssv,
             Email = email,

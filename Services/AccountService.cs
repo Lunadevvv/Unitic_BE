@@ -49,7 +49,7 @@ public class AccountService : IAccountService
         var universityId = await _userRepository.GetUniversityIdByNameAsync(registerRequest.UniversityName);
         string id = await GenerateUserId();
         //tạo user mới
-        var user = User.Create(registerRequest.Password, id, registerRequest.Mssv, registerRequest.Email, registerRequest.FirstName, registerRequest.LastName, universityId);
+        var user = User.Create(id, registerRequest.Mssv, registerRequest.Email, registerRequest.FirstName, registerRequest.LastName, universityId);
         user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, registerRequest.Password); //hash password trước khi lưu vào bảng AspNetUsers
                                                                                                       //gọi hàm CreateAsync để vừa check validate vừa lưu vào bảng AspNetUsers
         await _userManager.CreateAsync(user);
@@ -131,7 +131,7 @@ public class AccountService : IAccountService
         var universityId = await _userRepository.GetUniversityIdByNameAsync(registerRequest.UniversityName);
         string id = await GenerateUserId();
         //tạo user mới
-        var user = User.Create(registerRequest.Password, id, registerRequest.Mssv, registerRequest.Email, registerRequest.FirstName, registerRequest.LastName, universityId);
+        var user = User.Create(id, registerRequest.Mssv, registerRequest.Email, registerRequest.FirstName, registerRequest.LastName, universityId);
         user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, registerRequest.Password); //hash password trước khi lưu vào bảng AspNetUsers
                                                                                                       //gọi hàm CreateAsync để vừa check validate vừa lưu vào bảng AspNetUsers
         await _userManager.CreateAsync(user);

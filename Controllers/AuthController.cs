@@ -105,6 +105,8 @@ namespace Unitic_BE.Controllers
         }
 
         [HttpPost("register/{role}")]
+        [Authorize(Roles = "Admin")]
+        //Only admin can register roles
         public async Task<IActionResult> RegisterRoleAsync(string role, [FromBody] RegisterRequest registerRequest)
         {
             if (registerRequest == null)
