@@ -16,6 +16,9 @@ using Unitic_BE.Abstracts;
 using Unitic_BE.Services;
 using WebTicket.Infrastructure.Repositories;
 using WebTicket.Infrastructure.Seeder;
+using WebTicket.Infrastructure.QuartzJob;
+using WebTicket.Infrastructure.QuartzScheduler;
+using Quartz;
 
 namespace Unitic_BE
 {
@@ -40,6 +43,28 @@ namespace Unitic_BE
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IEventRepository, EventRepository>();
             builder.Services.AddScoped<IEventService, EventService>();
+
+            //add quartz job DI
+            builder.Services.AddScoped<IEventJobScheduler, QuartzEventJobScheduler>();
+            builder.Services.AddScoped<UpdateEventStatusJob>();
+
+            //Add Quartz
+            builder.Services.AddQuartz(opt =>
+            {
+
+                opt.UsePersistentStore(s =>
+                {
+                    s.UseProperties = true; //cho phép sử dụng properties
+                    s.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+                    s.UseNewtonsoftJsonSerializer(); //sử dụng Newtonsoft.Json để serialize/deserialize job data
+                });
+            });
+            // Add the Quartz.NET hosted service
+            builder.Services.AddQuartzHostedService(q =>
+            {
+                q.WaitForJobsToComplete = true;
+            });
+
             //lấy JwtOptions từ appsettings.json
             //ánh xạ vào property trong JwtOptions class qua DI
             builder.Services.Configure<JwtOptions>(

@@ -9,6 +9,7 @@ using System.ComponentModel;
 using Unitic_BE.Abstracts;
 using Unitic_BE.Requests;
 using Unitic_BE.Requests;
+using Unitic_BE.Constants;
 
 public class CustomValidator
 {
@@ -263,6 +264,88 @@ public class CustomValidator
             {
                 Description = "\nCategory available:\n" + string.Join("\n", categoryNames.Select((name, index) => $"{index + 1}. {name}"))
             });
+        }
+        return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
+    }
+
+    public (List<string>, bool) ValidateEventStatus(string status, Event myEvent)
+    {
+        List<ErrorResponse> errors = new List<ErrorResponse>();
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nStatus can't be null or empty"
+            });
+
+        }
+
+        if (!EventStatusConstant.AllStatuses.Contains(status))
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nList of status:\n" + string.Join("\n", EventStatusConstant.AllStatuses.Select((s, index) => $"{index + 1}. {s}"))
+            });
+            return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
+        }
+        bool a = true;
+        while (a && status != EventStatusConstant.SoldOut)
+        {
+            //event status là private
+            if (myEvent.Status == EventStatusConstant.Private && status != EventStatusConstant.Published)
+            {
+                errors.Add(new ErrorResponse
+                {
+                    Description = $"\nYou can't change status of private event to {status}\nAvailable status to update: Published"
+                });
+                break;
+            }
+            //event status là published
+            else if (myEvent.Status == EventStatusConstant.Published && status != EventStatusConstant.InProgress && status != EventStatusConstant.Cancelled && status != EventStatusConstant.Private)
+            {
+                errors.Add(new ErrorResponse
+                {
+                    Description = $"\nYou can't change status of published event to {status}\nAvailable status to update: InProgress, Cancelled"
+                });
+                break;
+            }
+            //event status là InProgress
+            else if (myEvent.Status == EventStatusConstant.InProgress && status != EventStatusConstant.Completed)
+            {
+                errors.Add(new ErrorResponse
+                {
+                    Description = $"\nYou can't change status of InProgress event to {status}\nAvailable status to update: Completed"
+                });
+                break;
+            }
+            //event status là Cancelled
+            else if (myEvent.Status == EventStatusConstant.Cancelled)
+            {
+                errors.Add(new ErrorResponse
+                {
+                    Description = $"\nYou can't change status of Cancelled event to {status}"
+                });
+                break;
+            }
+            //event status là Completed
+            else if (myEvent.Status == EventStatusConstant.Completed)
+            {
+                errors.Add(new ErrorResponse
+                {
+                    Description = $"\nYou can't change status of Completed event to {status}"
+                });
+                break;
+            }
+            //event status là SoldOut
+            else if (myEvent.Status == EventStatusConstant.SoldOut)
+            {
+                errors.Add(new ErrorResponse
+                {
+                    Description = $"\nYou can't change status of SoldOut event to {status}"
+                });
+                break;
+            }
+            a = false;
         }
         return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
     }
