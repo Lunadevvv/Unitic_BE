@@ -9,7 +9,7 @@ using Unitic_BE.Abstracts;
 using Unitic_BE.Constants;
 using Unitic_BE.Entities;
 
-namespace WebTicket.Infrastructure.Repositories
+namespace Unitic_BE.Repositories
 {
     public class EventRepository : IEventRepository
     {

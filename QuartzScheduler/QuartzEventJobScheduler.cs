@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Unitic_BE.Abstracts;
-using WebTicket.Infrastructure.QuartzJob;
+using Unitic_BE.QuartzJob;
 
-namespace WebTicket.Infrastructure.QuartzScheduler
+namespace Unitic_BE.QuartzScheduler
 {
     public class QuartzEventJobScheduler : IEventJobScheduler
     {

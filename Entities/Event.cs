@@ -22,6 +22,7 @@ namespace Unitic_BE.Entities
         public string? Status { get; set; }
 
         public string? CateID { get; set; }
+        public int? Slot { get; set; }
         [JsonIgnore] // Prevent circular reference during serialization
 
         [ForeignKey("CateID")]

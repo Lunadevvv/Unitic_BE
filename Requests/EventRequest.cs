@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Unitic_BE.Requests
 {
-    public record EventRequest(string? Name, string? Description, string? Date_Start, string? Date_End, int? Price, string? CategoryName);
+    public record EventRequest(string? Name, string? Description, string? Date_Start, string? Date_End, int? Price, string? CategoryName, int? Slot);
 }

@@ -265,6 +265,21 @@ public class CustomValidator
                 Description = "\nCategory available:\n" + string.Join("\n", categoryNames.Select((name, index) => $"{index + 1}. {name}"))
             });
         }
+        if (eventRequest.Slot == null)
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nSlot can't be null"
+            });
+        }
+        if (eventRequest.Slot < 0)
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nSlot must be greater than or equal to 0"
+            });
+        }
+
         return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
     }
 
@@ -288,7 +303,16 @@ public class CustomValidator
             });
             return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
         }
+    
+        if(status == EventStatusConstant.SoldOut && myEvent.Slot > 0)
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = $"\nYou can't change status to SoldOut when there are still {myEvent.Slot} slots"
+            });
+        }
         bool a = true;
+
         while (a && status != EventStatusConstant.SoldOut)
         {
             //event status là private

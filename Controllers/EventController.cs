@@ -7,7 +7,7 @@ using Unitic_BE.Constants;
 using Unitic_BE.Requests;
 using Unitic_BE.Requests;
 
-namespace WebTicket.API.Controller
+namespace Unitic_BE.Controllers
 {
     [Route("Unitic/[controller]")]
     [ApiController]

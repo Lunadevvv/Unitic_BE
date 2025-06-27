@@ -82,7 +82,8 @@ namespace Unitic_BE.Services
                 Date_Start = DateTime.Parse(myEventRequest.Date_Start),
                 Date_End = DateTime.Parse(myEventRequest.Date_End),
                 Price = myEventRequest.Price,
-                CateID = category.CateID
+                CateID = category.CateID,
+                Slot = myEventRequest.Slot 
             };
             // Add the myEvent to the repository
             await _repo.AddEventAsync(myEvent);
@@ -130,7 +131,7 @@ namespace Unitic_BE.Services
             myEvent.Date_End = DateTime.Parse(myEventRequest.Date_End);
             myEvent.Price = myEventRequest.Price;
             myEvent.CateID = category.CateID;
-
+            myEvent.Slot = myEventRequest.Slot;
             // Update the myEvent in the repository
             await _repo.UpdateEventAsync(myEvent);
 

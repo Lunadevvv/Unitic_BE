@@ -1,18 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Unitic_BE;
-using Unitic_BE.Entities;
-using Unitic_BE.Enums;
-using Unitic_BE.Exceptions;
-using Unitic_BE.Requests;
 
-namespace WebTicket.Infrastructure.Seeder
+using Unitic_BE.Entities;
+
+
+namespace Unitic_BE.Seeder
 {
     public static class Seeder
     {

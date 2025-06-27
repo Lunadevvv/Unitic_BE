@@ -3,7 +3,7 @@
 using Unitic_BE.Abstracts;
 using Unitic_BE.Constants;
 
-namespace WebTicket.Infrastructure.QuartzJob
+namespace Unitic_BE.QuartzJob
 {
     public class UpdateEventStatusJob : IJob
     {

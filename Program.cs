@@ -12,13 +12,13 @@ using Unitic_BE.Options;
 using Unitic_BE.Processors;
 using Unitic_BE.Repositories;
 using Unitic_BE.Services;
-using Unitic_BE.Abstracts;
-using Unitic_BE.Services;
-using WebTicket.Infrastructure.Repositories;
-using WebTicket.Infrastructure.Seeder;
-using WebTicket.Infrastructure.QuartzJob;
-using WebTicket.Infrastructure.QuartzScheduler;
+
 using Quartz;
+using Unitic_BE.QuartzJob;
+using Unitic_BE.QuartzScheduler;
+using Unitic_BE.Seeder;
+
+
 
 namespace Unitic_BE
 {
@@ -172,7 +172,9 @@ namespace Unitic_BE
             {
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
                 //cách khác để chạy đồng bộ trong hàm không phải async
-                Seeder.SeedAdminDataAsync(userManager).GetAwaiter().GetResult();
+                Seeder.Seeder.SeedAdminDataAsync(userManager).GetAwaiter().GetResult();
+
+
             }
 
             app.UseHttpsRedirection(); //chuyển hướng http tới https
