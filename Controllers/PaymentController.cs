@@ -31,10 +31,12 @@ namespace Unitic_BE.Controllers
         // {
 
         // }
-        [HttpPost("checkout")]
+        [HttpPost("vnpay-request")]
         public IActionResult CheckoutByVnPay(int accId)
         {
             // var account = _context.AccountTbls.FirstOrDefault(acc => acc.AccId.Equals(accId));
+
+            // Tạm thời fix cứng tên để sau sẽ lấy giá trị đồ trong db
             string name = "test";
             if(name == null)
             {
@@ -45,7 +47,7 @@ namespace Unitic_BE.Controllers
                 OrderId = new Random().Next(1000, 10000),
                 Amount = 99000,
                 CreatedDate = DateTime.Now,
-                Description = "Thank you for purchasing our Membership",
+                Description = "Thank you for purchasing",
                 FullName = name
             };
             var paymentUrl = _vnPayService.CreatePaymentUrl(HttpContext, vnPayModel, accId);
@@ -54,18 +56,15 @@ namespace Unitic_BE.Controllers
 
         
          [HttpGet("vnpay-response")]
-        public async Task<IActionResult> PaymentCallBack()
+        public IActionResult PaymentCallBack()
         {
             var response = _vnPayService.PaymentExecute(Request.Query);
-
-            if(response != null)
+            // Response Code != 00 la ko thanh cong
+            if (response == null || response.VnPayResponseCode != "00")
             {
-                if(response.Success && response.VnPayResponseCode == "00")
-                {                  
-                    return Redirect("https://localhost:7163/Unitic/Payment/vnpay-response");
-                }
+                return BadRequest(response);
             }
-            return Redirect("https://localhost:7163/Unitic/Payment/vnpay-response");
+            return Ok(response);
         }
     }
 }

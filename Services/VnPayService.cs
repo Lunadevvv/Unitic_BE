@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Identity.Client;
 using Unitic_BE.Abstracts;
 using Unitic_BE.Entities;
@@ -46,10 +47,6 @@ namespace Unitic_BE.Services
         {
             var vnpay = new VnPayLibrary();
 
-            foreach (var collectionItem in collections)
-            {
-                Console.WriteLine("Test" + collectionItem);
-            }
             foreach (var (key, value) in collections)
             {
                 if (!string.IsNullOrEmpty(key) && key.StartsWith("vnp_"))
@@ -57,14 +54,18 @@ namespace Unitic_BE.Services
                     vnpay.AddResponseData(key, value.ToString());
                 }
             }
+            // Console.WriteLine("Lấy giá trị bên Response data");
+            // foreach (KeyValuePair<string, string> pair in vnpay._responseData)
+            // {
+            //     Console.WriteLine(pair.Key + ": " + pair.Value);
+            // }
 
-            var orderId = Convert.ToInt64(vnpay.GetResponseData("vnp_TxnRef"));
-            var vnpayTranId = Convert.ToInt64(vnpay.GetResponseData("vnp_TransactionNo"));
+            // Debugger.Break();
+            var orderId = (vnpay.GetResponseData("vnp_TxnRef"));
+            var vnpayTranId = (vnpay.GetResponseData("vnp_TransactionNo"));
             var vnp_SecureHash = collections.FirstOrDefault(p => p.Key == "vnp_SecureHash").Value;
             var vnp_ResponseCode = vnpay.GetResponseData("vnp_ResponseCode");
             var vnp_OrderInfo = vnpay.GetResponseData("vnp_OrderInfo");
-            Console.WriteLine($"Secure Hash: {vnp_SecureHash}");
-            Console.WriteLine($"HashSecret: {_configuration["Vnpay:HashSecret"]}");
             bool checkSignature = vnpay.ValidateSignature(vnp_SecureHash, _configuration["Vnpay:HashSecret"]);
             if (!checkSignature)
             {
