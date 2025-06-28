@@ -166,6 +166,7 @@ builder.Services.AddMvc();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IGoogleService, GoogleService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
             
             var app = builder.Build();
 

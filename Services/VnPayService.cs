@@ -16,28 +16,28 @@ namespace Unitic_BE.Services
         {
             var tick = DateTime.Now.Ticks.ToString();
             var vnpay = new VnPayLibrary();
-            string returnUrl = $"{_configuration["Vnpay:PaymentBackUrl"]}?accId={accId}";
+            string returnUrl = $"{_configuration["Vnpay:PaymentBackUrl"]}";
 
             vnpay.AddRequestData("vnp_Version", _configuration["Vnpay:Version"]);
             vnpay.AddRequestData("vnp_Command", _configuration["Vnpay:Command"]);
             vnpay.AddRequestData("vnp_TmnCode", _configuration["Vnpay:TmnCode"]);
-            vnpay.AddRequestData("vnp_Amount", (model.Amount * 100).ToString()); /*Số tiền thanh toán. Số tiền không 
-            mang các ký tự phân tách thập phân, phần nghìn, ký tự tiền tệ. Để gửi số tiền thanh toán là 100,000 VND
-            (một trăm nghìn VNĐ) thì merchant cần nhân thêm 100 lần(khử phần thập phân), sau đó gửi sang VNPAY
-            là: 10000000*/
+            vnpay.AddRequestData("vnp_TxnRef", tick);
+            // Thieu app user id
+            // vnpay.AddRequestData("vnp_AppUserId", accId.ToString());
+            // Thieu card type
+            // vnpay.AddRequestData("vnp_CardType", )
+            // Thiếu thông tin mô tả thanh toán
+            vnpay.AddRequestData("vnp_ReturnUrl", returnUrl);
+            vnpay.AddRequestData("vnp_IpAddr", Utils.GetIpAddress(context));
+            vnpay.AddRequestData("vnp_Amount", (model.Amount * 100).ToString()); 
 
             vnpay.AddRequestData("vnp_CreateDate", model.CreatedDate.ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData("vnp_CurrCode", _configuration["Vnpay:CurrCode"]);
-            vnpay.AddRequestData("vnp_IpAddr", Utils.GetIpAddress(context));
             vnpay.AddRequestData("vnp_Locale", _configuration["Vnpay:Locale"]);
 
             vnpay.AddRequestData("vnp_OrderInfo", "Pay for the order:" + model.OrderId);
             vnpay.AddRequestData("vnp_OrderType", "other"); //default value: other
-            vnpay.AddRequestData("vnp_ReturnUrl", returnUrl);
 
-            vnpay.AddRequestData("vnp_TxnRef", tick); /* Mã tham chiếu của giao dịch tại hệ 
-            thống của merchant.Mã này là duy nhất dùng để phân biệt các đơn hàng gửi sang VNPAY.Không được
-            trùng lặp trong ngày*/
             var paymentUrl = vnpay.CreateRequestUrl(_configuration["Vnpay:BaseUrl"], _configuration["Vnpay:HashSecret"]);
             return paymentUrl;
         }
@@ -45,6 +45,11 @@ namespace Unitic_BE.Services
         public VnPaymentResponseModel PaymentExecute(IQueryCollection collections)
         {
             var vnpay = new VnPayLibrary();
+
+            foreach (var collectionItem in collections)
+            {
+                Console.WriteLine("Test" + collectionItem);
+            }
             foreach (var (key, value) in collections)
             {
                 if (!string.IsNullOrEmpty(key) && key.StartsWith("vnp_"))
