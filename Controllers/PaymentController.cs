@@ -26,11 +26,6 @@ namespace Unitic_BE.Controllers
             _vnPayService = vnPayService;
         }
 
-        // [HttpGet("VnPayUrl")]
-        // public IActionResult GetVnPayUrl()
-        // {
-
-        // }
         [HttpPost("vnpay-request")]
         public IActionResult CheckoutByVnPay(int accId)
         {
