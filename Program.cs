@@ -55,7 +55,7 @@ namespace Unitic_BE
                 opt.UsePersistentStore(s =>
                 {
                     s.UseProperties = true; //cho phép sử dụng properties
-                    s.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+                    s.UseSqlServer(builder.Configuration.GetConnectionString("QuartzConnection"));
                     s.UseNewtonsoftJsonSerializer(); //sử dụng Newtonsoft.Json để serialize/deserialize job data
                 });
             });

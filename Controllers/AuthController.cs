@@ -1,14 +1,9 @@
 ﻿using System.Security.Claims;
 using Google.Apis.Auth.AspNetCore3;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Unitic_BE.Abstracts;
-using Unitic_BE.Requests;
-using Unitic_BE.Services;
 using Unitic_BE.Requests;
 
 namespace Unitic_BE.Controllers

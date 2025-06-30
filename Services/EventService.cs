@@ -9,7 +9,6 @@ using Unitic_BE.Entities;
 using Unitic_BE.Enums;
 using Unitic_BE.Exceptions;
 using Unitic_BE.Requests;
-using Unitic_BE.Requests;
 
 namespace Unitic_BE.Services
 {
@@ -26,33 +25,13 @@ namespace Unitic_BE.Services
             _categoryRepo = categoryRepository;
             _scheduler = scheduler;
         }
-        public Task<List<Event>> GetAllSoldOutEvents()
-        {
-            return _repo.GetAllSoldOutEvents();
-        }
-        public Task<List<Event>> GetAllInProgressEvents()
-        {
-            return _repo.GetAllInProgressEvents();
-        }
         public Task<List<Event>> GetAllEvents()
         {
             return _repo.GetAllEventsAsync();
         }
-        public Task<List<Event>> GetAllCompletedEvents()
+        public Task<List<Event>> GetAllEventsByStatus(EventStatus status)
         {
-            return _repo.GetAllCompletedEvent();
-        }
-        public Task<List<Event>> GetAllCancelledEvents()
-        {
-            return _repo.GetAllCancelledEvent();
-        }
-        public Task<List<Event>> GetAllPublishedEvents()
-        {
-            return _repo.GetAllPublishedEvent();
-        }
-        public Task<List<Event>> GetAllPrivateEvents()
-        {
-            return _repo.GetAllPrivateEvent();
+            return _repo.GetAllEventsByStatus(status);
         }
         public async Task AddEventAsync(EventRequest myEventRequest)
         {
@@ -77,7 +56,7 @@ namespace Unitic_BE.Services
             {
                 EventID = await GenerateEventId(),
                 Name = myEventRequest.Name,
-                Status = GetStringEventStatusName(EventStatus.Private),
+                Status = EventStatus.Private,
                 Description = myEventRequest.Description,
                 Date_Start = DateTime.Parse(myEventRequest.Date_Start),
                 Date_End = DateTime.Parse(myEventRequest.Date_End),
@@ -136,7 +115,7 @@ namespace Unitic_BE.Services
             await _repo.UpdateEventAsync(myEvent);
 
             // if date start is changed, delete the job if it exists and create new job
-            if (myEvent.Status == "Published")
+            if (myEvent.Status == EventStatus.Published)
             {
                 await _scheduler.DeleteStatusJobAsync(id);
                 await _scheduler.ScheduleUpdateStatusJobAsync(id, myEvent.Date_Start);
@@ -151,20 +130,8 @@ namespace Unitic_BE.Services
             string generatedId = "Event" + id.ToString("D4");
             return generatedId;
         }
-        private string GetStringEventStatusName(EventStatus eventStatus)
-        {
-            return eventStatus switch
-            {
-                EventStatus.Published => EventStatusConstant.Published,
-                EventStatus.InProgress => EventStatusConstant.InProgress,
-                EventStatus.Completed => EventStatusConstant.Completed,
-                EventStatus.Cancelled => EventStatusConstant.Cancelled,
-                EventStatus.SoldOut => EventStatusConstant.SoldOut,
-                EventStatus.Private => EventStatusConstant.Private,
-                _ => throw new ArgumentOutOfRangeException(nameof(eventStatus), eventStatus, "Provided event status is not supported.")
-            };
-        }
-        public async Task UpdateEventStatusAsync(string id, EventUpdateStatusRequest eventUpdateStatus)
+
+        public async Task UpdateEventStatusAsync(string id, EventStatus status)
         {
             var myEvent = await _repo.GetEventByIdAsync(id);
             if (myEvent == null)
@@ -172,16 +139,11 @@ namespace Unitic_BE.Services
                 throw new ObjectNotFoundException($"Event with id {id}");
             }
 
-            var (error, isValidate) = _validator.ValidateEventStatus(eventUpdateStatus.status, myEvent);
-            if (!isValidate)
-            {
-                throw new UpdateAddFailedException(error);
-            }
-            myEvent.Status = eventUpdateStatus.status;
+            myEvent.Status = status;
             await _repo.UpdateEventAsync(myEvent);
 
             //gọi scheduler tạo job nếu update lên published
-            if (eventUpdateStatus.status == EventStatusConstant.Published)
+            if (status == EventStatus.Published)
                 await _scheduler.ScheduleUpdateStatusJobAsync(id, myEvent.Date_Start);
             //ko phải published thì xóa job
             else

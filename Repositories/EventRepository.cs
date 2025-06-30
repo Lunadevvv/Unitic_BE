@@ -8,6 +8,7 @@ using Unitic_BE;
 using Unitic_BE.Abstracts;
 using Unitic_BE.Constants;
 using Unitic_BE.Entities;
+using Unitic_BE.Enums;
 
 namespace Unitic_BE.Repositories
 {
@@ -23,21 +24,9 @@ namespace Unitic_BE.Repositories
         {
             return await _context.Events.ToListAsync();
         }
-        public async Task<List<Event>> GetAllCompletedEvent()
+        public async Task<List<Event>> GetAllEventsByStatus(EventStatus status)
         {
-            return await _context.Events.Where(u => u.Status == EventStatusConstant.Completed).ToListAsync();
-        }
-        public async Task<List<Event>> GetAllCancelledEvent()
-        {
-            return await _context.Events.Where(u => u.Status == EventStatusConstant.Cancelled).ToListAsync();
-        }
-        public async Task<List<Event>> GetAllPublishedEvent()
-        {
-            return await _context.Events.Where(u => u.Status == EventStatusConstant.Published).ToListAsync();
-        }
-        public async Task<List<Event>> GetAllPrivateEvent()
-        {
-            return await _context.Events.Where(u => u.Status == EventStatusConstant.Private).ToListAsync();
+            return await _context.Events.Where(u => u.Status == status).ToListAsync();
         }
 
         public async Task AddEventAsync(Event myEvent)
@@ -69,15 +58,6 @@ namespace Unitic_BE.Repositories
         {
             return await _context.Events
                 .FirstOrDefaultAsync(c => c.Name == name);
-        }
-
-        public async Task<List<Event>> GetAllSoldOutEvents()
-        {
-            return await _context.Events.Where(u => u.Status == EventStatusConstant.SoldOut).ToListAsync();
-        }
-        public async Task<List<Event>> GetAllInProgressEvents()
-        {
-            return await _context.Events.Where(u => u.Status == EventStatusConstant.InProgress).ToListAsync();
         }
     }
 }

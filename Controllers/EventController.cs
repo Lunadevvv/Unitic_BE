@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Unitic_BE.Abstracts;
 using Unitic_BE.Constants;
-using Unitic_BE.Requests;
+using Unitic_BE.Enums;
 using Unitic_BE.Requests;
 
 namespace Unitic_BE.Controllers
@@ -26,44 +26,10 @@ namespace Unitic_BE.Controllers
             return Ok(myEvents);
         }
 
-        [HttpGet("private")]
-        public async Task<IActionResult> GetPrivateEvents()
+        [HttpGet("status")]
+        public async Task<IActionResult> GetPrivateEvents([FromQuery]EventStatus status)
         {
-            var myEvents = await _myEventService.GetAllPrivateEvents();
-            return Ok(myEvents);
-        }
-
-        [HttpGet("sold-out")]
-        public async Task<IActionResult> GetSoldOutEvents()
-        {
-            var myEvents = await _myEventService.GetAllSoldOutEvents();
-            return Ok(myEvents);
-        }
-
-        [HttpGet("published")]
-        public async Task<IActionResult> GetPublishedEvents()
-        {
-            var myEvents = await _myEventService.GetAllPublishedEvents();
-            return Ok(myEvents);
-        }
-
-        [HttpGet("Cancelled")]
-        public async Task<IActionResult> GetCancelledEvents()
-        {
-            var myEvents = await _myEventService.GetAllCancelledEvents();
-            return Ok(myEvents);
-        }
-
-        [HttpGet("Completed")]
-        public async Task<IActionResult> GetCompletedEvents()
-        {
-            var myEvents = await _myEventService.GetAllCompletedEvents();
-            return Ok(myEvents);
-        }
-        [HttpGet("InProgress")]
-        public async Task<IActionResult> GetInProgressEvents()
-        {
-            var myEvents = await _myEventService.GetAllInProgressEvents();
+            var myEvents = await _myEventService.GetAllEventsByStatus(status);
             return Ok(myEvents);
         }
 
@@ -89,27 +55,27 @@ namespace Unitic_BE.Controllers
             return Ok("Event added successfully");
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateEvent(string id, [FromBody] EventRequest request)
+        [HttpPut("{eventId}")]
+        public async Task<IActionResult> UpdateEvent(string eventId, [FromBody] EventRequest request)
         {
             if (request == null)
             {
                 return BadRequest("Invalid update data.");
             }
-            await _myEventService.UpdateEventAsync(id, request);
+            await _myEventService.UpdateEventAsync(eventId, request);
             return Ok("Event updated successfully");
         }
 
-        [HttpPut("status/{id}")]
+        [HttpPut("status/{eventId}")]
         [Authorize(Roles = "Admin,Moderator,Organizer")]
-        public async Task<IActionResult> UpdateEventStatus(string id, EventUpdateStatusRequest eventUpdateStatusRequest)
+        public async Task<IActionResult> UpdateEventStatus(string eventId, [FromQuery]EventStatus status)
         {
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (eventUpdateStatusRequest.status != EventStatusConstant.Completed && userRole == IdentityRoleConstants.Organizer)
+            if (status != EventStatus.Completed && userRole == IdentityRoleConstants.Organizer)
             {
                 return Unauthorized("Organizer can only update event status to Completed.");
             }
-            await _myEventService.UpdateEventStatusAsync(id, eventUpdateStatusRequest);
+            await _myEventService.UpdateEventStatusAsync(eventId, status);
             return Ok("Event status updated successfully");
         }
     }

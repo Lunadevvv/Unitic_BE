@@ -11,9 +11,9 @@ namespace Unitic_BE.Entities
     public class Category
     {
         [Key]
-        public string CateID { get; set; }
-        public string Name { get; set; }
-        public bool Is_Disable { get; set; }
+        public string CateID { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public bool Is_Disable { get; set; } = false;
         [JsonIgnore]
         public ICollection<Event> Events { get; set; } = new List<Event>(); // Navigation property to the Event entity
     }

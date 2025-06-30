@@ -78,13 +78,14 @@ namespace Unitic_BE.Migrations
                 columns: table => new
                 {
                     EventID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Date_Start = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Date_End = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Price = table.Column<int>(type: "int", nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CateID = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Date_Start = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Date_End = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Price = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CateID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Slot = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -94,7 +95,7 @@ namespace Unitic_BE.Migrations
                         column: x => x.CateID,
                         principalTable: "Categories",
                         principalColumn: "CateID",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(

@@ -126,10 +126,9 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<string>
             .HasForeignKey(u => u.UniversityId)
             .OnDelete(DeleteBehavior.SetNull);
         builder.Entity<Event>()
-       .HasOne(e => e.Category)
-       .WithMany(u => u.Events)
-       .HasForeignKey(e => e.CateID)
-       .OnDelete(DeleteBehavior.SetNull); // Xóa sự kiện khi người tổ chức bị xóa
+            .HasOne(e => e.Category)
+            .WithMany(u => u.Events)
+            .HasForeignKey(e => e.CateID);
 
 
     }

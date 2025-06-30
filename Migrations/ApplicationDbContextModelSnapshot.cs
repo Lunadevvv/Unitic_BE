@@ -236,28 +236,31 @@ namespace Unitic_BE.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CateID")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime?>("Date_End")
+                    b.Property<DateTime>("Date_End")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("Date_Start")
+                    b.Property<DateTime>("Date_Start")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("Price")
+                    b.Property<int>("Price")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Slot")
+                    b.Property<int>("Slot")
                         .HasColumnType("int");
 
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("EventID");
 
@@ -445,7 +448,8 @@ namespace Unitic_BE.Migrations
                     b.HasOne("Unitic_BE.Entities.Category", "Category")
                         .WithMany("Events")
                         .HasForeignKey("CateID")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
                 });
