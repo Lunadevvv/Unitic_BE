@@ -4,7 +4,7 @@ namespace Unitic_BE.DTOs.Requests;
 
 public record RegisterRequest
 {
-    public string Mssv { get; init; } 
+    public string Mssv { get; init; } = string.Empty;
     public required string FirstName { get; init; }
     public required string LastName { get; init; }
     public required string Email { get; init; }

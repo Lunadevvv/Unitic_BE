@@ -12,10 +12,11 @@ using Unitic_BE.DTOs.Requests;
 public class CustomValidator
 {
 
-    public async Task<(List<string>, bool)> ValidateUserAsync(RegisterRequest register, List<string> universityNames)
+    public (List<string>, bool) ValidateUser(RegisterRequest register, List<string> universityNames)
     {
         //email, password ko cần check null
         var errors = new List<ErrorResponse>();
+
         //email
         if (!Regex.IsMatch(register.Email, @"^(?!.*\s).+@(gmail\.com|fpt\.edu\.vn)$"))
         {
@@ -43,6 +44,25 @@ public class CustomValidator
             });
         }
 
+        //password
+        {
+            if (register.Password.Length < 8)
+            {
+                errors.Add(new ErrorResponse
+                {
+
+                    Description = "\nPassword must be at minimum 8 characters long"
+                });
+            }
+            if (register.Password.Length > 16)
+            {
+                errors.Add(new ErrorResponse
+                {
+
+                    Description = "\nPassword must be at maximum 16 characters long"
+                });
+            }
+        }
         //FirstName
         if (string.IsNullOrWhiteSpace(register.FirstName))
         {
@@ -78,8 +98,7 @@ public class CustomValidator
             });
 
 
-
-        //UniversityId
+        //UniversityName
         if (string.IsNullOrWhiteSpace(register.UniversityName))
         {
             errors.Add(new ErrorResponse
@@ -91,7 +110,7 @@ public class CustomValidator
         bool a = false;
         foreach (var university in universityNames)
         {
-            if (university.Equals(register.UniversityName, StringComparison.OrdinalIgnoreCase))
+            if (university.Equals(register.UniversityName))
             {
                 a = true;
                 break;
@@ -106,7 +125,7 @@ public class CustomValidator
         }
         return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
     }
-    public async Task<(List<string>, bool)> ValidateUniversityAsync(UniversityRequest request)
+    public (List<string>, bool) ValidateUniversity(UniversityRequest request)
     {
         var errors = new List<ErrorResponse>();
         if (!Regex.IsMatch(request.Name, @"^Đại học( [A-ZÀ-Ỵ][a-zà-ỹ]*)+$"))
@@ -140,8 +159,9 @@ public class CustomValidator
         }
         return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
     }
-    
-    public async Task<(List<string>, bool)> ValidateUpdateProfileAsync(UpdateUserInformation request){
+
+    public async Task<(List<string>, bool)> ValidateUpdateProfileAsync(UpdateUserInformation request)
+    {
         var errors = new List<ErrorResponse>();
         //FirstName
         if (string.IsNullOrWhiteSpace(request.FirstName))
@@ -176,6 +196,112 @@ public class CustomValidator
 
                 Description = "\nLast name contains only characters"
             });
+        return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
+    }
+    public (List<string>, bool) ValidateEventRequest(EventRequest eventRequest, List<string> categoryNames)
+    {
+        var errors = new List<ErrorResponse>();
+
+        //description
+        if (string.IsNullOrWhiteSpace(eventRequest.Description))
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nDescription can't be null or empty"
+            });
+        }
+        //eventDate
+        if (eventRequest.Date_Start == null)
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nStart date can't be null"
+            });
+        }
+        if (eventRequest.Date_End == null)
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nEnd date can't be null"
+            });
+        }
+
+        if (!string.IsNullOrWhiteSpace(eventRequest.Date_Start) &&
+            !Regex.IsMatch(eventRequest.Date_Start, @"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$"))
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nStart date must be in the format yyyy-MM-ddTHH:mm:ss"
+            });
+        }
+
+        if (!string.IsNullOrWhiteSpace(eventRequest.Date_End) &&
+            !Regex.IsMatch(eventRequest.Date_End, @"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$"))
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nEnd date must be in the format yyyy-MM-ddTHH:mm:ss"
+            });
+        }
+        bool dateStart = false, dateEnd = false;
+        DateTime Date_Start = DateTime.Now, Date_End = DateTime.Now;
+        if (!string.IsNullOrWhiteSpace(eventRequest.Date_Start))
+        {
+            dateStart = DateTime.TryParse(eventRequest.Date_Start, out Date_Start);
+        }
+        if (!string.IsNullOrWhiteSpace(eventRequest.Date_End))
+        {
+            dateEnd = DateTime.TryParse(eventRequest.Date_End, out Date_End);
+        }
+
+        if (dateStart && Date_Start < DateTime.Now)
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nStart date must be greater than current date"
+            });
+        }
+        if (dateEnd && Date_End < Date_Start)
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nEnd date must be greater than start date"
+            });
+        }
+        if (dateStart && dateEnd && Date_Start == Date_End)
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nStart date must be different from end date"
+            });
+        }
+
+        if (eventRequest.Price < 0)
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nPrice must be greater than or equal to 0"
+            });
+        }
+
+        //eventName
+        if (string.IsNullOrWhiteSpace(eventRequest.Name))
+        {
+            errors.Add(new ErrorResponse
+            {
+
+                Description = "\nEvent name can't be null or empty"
+            });
+        }
+        
+        if (eventRequest.Slot < 0)
+        {
+            errors.Add(new ErrorResponse
+            {
+                Description = "\nSlot must be greater than or equal to 0"
+            });
+        }
+
         return errors.Any() ? (errors.Select(e => e.Description).ToList(), false) : (new List<string>(), true);
     }
 }

@@ -45,7 +45,10 @@ public class GlobalExceptionHandler : IExceptionHandler
             RegistrationFailedException => (HttpStatusCode.BadRequest, exception.Message),
             TokenException => (HttpStatusCode.Unauthorized, exception.Message),
             UniversityNameAlreadyExistsException => (HttpStatusCode.Conflict, exception.Message),
-            UpdateAddUniFailedException => (HttpStatusCode.BadRequest, exception.Message),
+            UpdateAddFailedException => (HttpStatusCode.BadRequest, exception.Message),
+            ObjectNotFoundException => (HttpStatusCode.NotFound, exception.Message),
+            ObjPropertyAlreadyExists => (HttpStatusCode.Conflict, exception.Message),
+            NotValidEventStatusException => (HttpStatusCode.BadRequest, exception.Message),
             // _ là default
             _ => (HttpStatusCode.InternalServerError, $"An unexpected error occurred: {exception.Message}")
         };

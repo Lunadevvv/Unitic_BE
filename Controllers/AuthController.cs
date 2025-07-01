@@ -1,10 +1,7 @@
 ﻿using System.Security.Claims;
 using Google.Apis.Auth.AspNetCore3;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Unitic_BE.Abstracts;
 using Unitic_BE.Contracts;
@@ -40,7 +37,7 @@ namespace Unitic_BE.Controllers
                 var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
                 return Challenge(properties, GoogleOpenIdConnectDefaults.AuthenticationScheme);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Handle exceptions
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
@@ -63,7 +60,7 @@ namespace Unitic_BE.Controllers
 
                 return Ok(new { Message = "Login successful.", Token = token });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Handle exceptions
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
@@ -123,6 +120,9 @@ namespace Unitic_BE.Controllers
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest resetPasswordRequest)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (userId == null)
+                return BadRequest("User not found!");
 
             await _accountService.ResetPassword(userId, resetPasswordRequest.NewPassword);
 
@@ -142,6 +142,19 @@ namespace Unitic_BE.Controllers
             await _accountService.ChangePassword(userId, changePasswordRequest);
             return Ok("Changed Password successfully!");
         }
+
+        // [HttpPost("register/{role}")]
+        // [Authorize(Roles = "Admin")]
+        // //Only admin can register roles
+        // public async Task<IActionResult> RegisterRoleAsync(string role, [FromBody] RegisterRequest registerRequest)
+        // {
+        //     if (registerRequest == null)
+        //     {
+        //         return BadRequest("Invalid registration request.");
+        //     }
+        //     await _accountService.RegisterRoleAsync(role, registerRequest);
+        //     return Ok("Registration successful.");
+        // }
     }
 
 }

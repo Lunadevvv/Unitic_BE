@@ -7,9 +7,9 @@ namespace Unitic_BE.DTOs.Requests
 {
     public class UpdateUserInformation
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Mssv { get; set; }
-        public string UniversityId { get; set; }
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
+        public required string Mssv { get; set; }
+        public required string UniversityId { get; set; }
     }
 }

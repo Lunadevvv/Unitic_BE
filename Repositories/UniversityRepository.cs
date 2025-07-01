@@ -65,7 +65,11 @@ namespace Unitic_BE.Repositories
         public async Task<string> GetLastId()
         {
             var lastUniversity = await _context.Universities.OrderByDescending(u => u.Id).FirstOrDefaultAsync();
-            return lastUniversity?.Id;
+            if (lastUniversity == null)
+            {
+                throw new Exception("Can't found University!");
+            }
+            return lastUniversity.Id;
         }
     }
 }

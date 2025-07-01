@@ -10,4 +10,6 @@ public interface IAccountService
     Task<string> ForgotPassword(string email);
     Task ResetPassword(string? userId, string newPassword);
     Task ChangePassword(string? userId, ChangePasswordRequest changePasswordRequest);
+    Task<User> GetCurrentUserAsync(string userId);
+    // Task RegisterRoleAsync(string role, RegisterRequest registerRequest);
 }

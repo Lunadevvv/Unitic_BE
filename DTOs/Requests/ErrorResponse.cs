@@ -8,6 +8,6 @@ namespace Unitic_BE.DTOs.Requests
 {
     public class ErrorResponse
     {
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
     }
 }
