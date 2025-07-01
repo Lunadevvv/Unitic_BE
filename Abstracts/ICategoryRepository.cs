@@ -16,6 +16,5 @@ namespace Unitic_BE.Abstracts
         Task UpdateCategoryAsync(Category category);
         Task DeleteCategoryAsync(Category category);
         Task<string> GetLastId();
-        Task<Category> GetCategoryByNameAsync(string name);
     }
 }

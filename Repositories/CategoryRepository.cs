@@ -55,11 +55,6 @@ namespace Unitic_BE.Repositories
                 .FirstOrDefaultAsync();
             return id;
         }
-        public async Task<Category> GetCategoryByNameAsync(string name)
-        {
-            return await _context.Categories
-                .FirstOrDefaultAsync(c => c.Name == name);
-        }
 
 
     }

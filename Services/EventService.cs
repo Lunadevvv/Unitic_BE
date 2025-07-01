@@ -50,7 +50,6 @@ namespace Unitic_BE.Services
             {
                 throw new UpdateAddFailedException(errors);
             }
-            var category = await _categoryRepo.GetCategoryByNameAsync(myEventRequest.CategoryName);
             // Create a new Event entity from the request
             Event myEvent = new Event
             {
@@ -61,7 +60,7 @@ namespace Unitic_BE.Services
                 Date_Start = DateTime.Parse(myEventRequest.Date_Start),
                 Date_End = DateTime.Parse(myEventRequest.Date_End),
                 Price = myEventRequest.Price,
-                CateID = category.CateID,
+                CateID = myEventRequest.CateID,
                 Slot = myEventRequest.Slot 
             };
             // Add the myEvent to the repository
@@ -103,13 +102,12 @@ namespace Unitic_BE.Services
                 throw new UpdateAddFailedException(errors);
             }
             // Update the myEvent properties
-            var category = await _categoryRepo.GetCategoryByNameAsync(myEventRequest.CategoryName);
             myEvent.Name = myEventRequest.Name;
             myEvent.Description = myEventRequest.Description;
             myEvent.Date_Start = DateTime.Parse(myEventRequest.Date_Start);
             myEvent.Date_End = DateTime.Parse(myEventRequest.Date_End);
             myEvent.Price = myEventRequest.Price;
-            myEvent.CateID = category.CateID;
+            myEvent.CateID = myEventRequest.CateID;
             myEvent.Slot = myEventRequest.Slot;
             // Update the myEvent in the repository
             await _repo.UpdateEventAsync(myEvent);
