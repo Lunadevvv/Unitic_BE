@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Unitic_BE.Requests
+namespace Unitic_BE.DTOs.Requests
 {
     public class ForgotPasswordRequest
     {

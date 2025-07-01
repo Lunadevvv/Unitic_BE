@@ -12,7 +12,7 @@ public class User : IdentityUser<string>
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
 
-    public required string UniversityId { get; set; } // FK từ bảng university
+    public string? UniversityId { get; set; } // FK từ bảng university
 
     [ForeignKey("UniversityId")]
     public University? University { get; set; } // Navigation property
@@ -23,7 +23,6 @@ public class User : IdentityUser<string>
         //chuyển university name thành university id
         return new User
         {
-            // Password = password, // Password is stored in the User object, but only the hash is saved in the database.
             Id = id, // Id is the primary key, can be Guid or string
             Mssv = mssv,
             Email = email,

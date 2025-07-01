@@ -20,13 +20,15 @@ public class GlobalExceptionHandler : IExceptionHandler
     {
         //tuple deconstruction, gán nhanh value cho 2 biến
         var (statusCode, message) = GetExceptionDetails(exception);
-        
+
         _logger.LogError(exception, exception.Message);
 
         //gán mã lỗi thủ công cho response và viết vào body dưới dạng json
         //gán cancellationToken để có thể hủy bỏ quá trình khi user hủy request ko tốn tài nguyên
         httpContext.Response.StatusCode = (int)statusCode;
-        await httpContext.Response.WriteAsJsonAsync(message, cancellationToken);
+        //tách msg có \n thành phần tử mảng
+        var msg = message.Split("\n");
+        await httpContext.Response.WriteAsJsonAsync(msg, cancellationToken);
 
         return true;
     }
@@ -42,6 +44,11 @@ public class GlobalExceptionHandler : IExceptionHandler
             UserAlreadyExistsException => (HttpStatusCode.Conflict, exception.Message),
             RegistrationFailedException => (HttpStatusCode.BadRequest, exception.Message),
             TokenException => (HttpStatusCode.Unauthorized, exception.Message),
+            UniversityNameAlreadyExistsException => (HttpStatusCode.Conflict, exception.Message),
+            UpdateAddFailedException => (HttpStatusCode.BadRequest, exception.Message),
+            ObjectNotFoundException => (HttpStatusCode.NotFound, exception.Message),
+            ObjPropertyAlreadyExists => (HttpStatusCode.Conflict, exception.Message),
+            NotValidEventStatusException => (HttpStatusCode.BadRequest, exception.Message),
             // _ là default
             _ => (HttpStatusCode.InternalServerError, $"An unexpected error occurred: {exception.Message}")
         };

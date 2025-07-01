@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebTicket.Domain.Requests
+namespace Unitic_BE.DTOs.Responses
 {
     public class LoginResponse
     {

@@ -14,9 +14,11 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<string>
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
-    
+
     public DbSet<User> Users { get; set; }
     public DbSet<University> Universities { get; set; }
+    public DbSet<Event> Events { get; set; }
+    public DbSet<Category> Categories { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -24,7 +26,7 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<string>
         //quy định độ dài của các trường trong bảng User
         builder.Entity<User>()
             .Property(u => u.FirstName).HasMaxLength(256);
-        
+
         builder.Entity<User>()
             .Property(u => u.LastName).HasMaxLength(256);
         //Seed data mặc định vào bảng university
@@ -92,10 +94,41 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<string>
                 }
 
             });
+        //seed data vào category
+        builder.Entity<Category>()
+           .HasData(new List<Category>
+           {
+                new Category
+                {
+                    CateID = "Cate0001",
+                    Name = "Entertainment",
+                },
+                new Category
+                {
+                    CateID = "Cate0002",
+                    Name = "Education",
+                },
+                new Category
+                {
+                    CateID = "Cate0003",
+                    Name = "Sharing",
+                },
+                new Category
+                {
+                    CateID = "Cate0004",
+                    Name = "Music",
+                }
+           });
+        //các mqh
         builder.Entity<User>()
             .HasOne(u => u.University)
             .WithMany(u => u.Users)
-            .HasForeignKey(u => u.UniversityId);
+            .HasForeignKey(u => u.UniversityId)
+            .OnDelete(DeleteBehavior.SetNull);
+        builder.Entity<Event>()
+            .HasOne(e => e.Category)
+            .WithMany(u => u.Events)
+            .HasForeignKey(e => e.CateID);
 
 
     }
