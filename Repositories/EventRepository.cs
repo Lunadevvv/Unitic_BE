@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Unitic_BE;
 using Unitic_BE.Abstracts;
-using Unitic_BE.Constants;
 using Unitic_BE.Entities;
 using Unitic_BE.Enums;
 
@@ -33,18 +32,18 @@ namespace Unitic_BE.Repositories
         {
             _context.Events.Add(myEvent);
             await _context.SaveChangesAsync();
+        }
 
-        }
-        public async Task<Event?> GetEventByIdAsync(string id)
+        public async Task<Event?> GetEventByIdAsync(string eventId)
         {
-            return await _context.Events.FirstOrDefaultAsync(c => c.EventID == id);
+            return await _context.Events.FirstOrDefaultAsync(c => c.EventID == eventId);
         }
+
         public async Task UpdateEventAsync(Event myEvent)
         {
             _context.Events.Update(myEvent);
             await _context.SaveChangesAsync();
         }
-
         
         public async Task<string> GetLastId()
         {
