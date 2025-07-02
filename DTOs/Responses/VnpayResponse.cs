@@ -1,7 +1,12 @@
-namespace Unitic_BE.Entities
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Unitic_BE.DTOs.Responses
 {
-    public class VnPaymentResponseModel
-    {
+    public class VnPaymentResponse
+    {   
         public bool Success { get; set; }
         public string? PaymentMethod { get; set; }
         public string? OrderDescription { get; set; }
@@ -10,13 +15,5 @@ namespace Unitic_BE.Entities
         public string? TransactionId { get; set; }
         public string? Token { get; set; }
         public string? VnPayResponseCode { get; set; }
-    }
-    public class VnPaymentRequestModel
-    {
-        public int OrderId { get; set; }
-        public required string FullName { get; set; }
-        public required string Description { get; set; }
-        public required double Amount { get; set; }
-        public DateTime CreatedDate { get; set; }
-    }
+    } 
 }

@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Microsoft.Identity.Client;
 using Unitic_BE.Abstracts;
+using Unitic_BE.DTOs.Requests;
+using Unitic_BE.DTOs.Responses;
 using Unitic_BE.Entities;
 using Unitic_BE.Utilities;
 
@@ -13,7 +15,7 @@ namespace Unitic_BE.Services
         {
             _configuration = configuration;
         }
-        public string CreatePaymentUrl(HttpContext context, VnPaymentRequestModel model, int accId)
+        public string CreatePaymentUrl(HttpContext context, VnPaymentRequest model, int accId)
         {
             var tick = DateTime.Now.Ticks.ToString();
             var vnpay = new VnPayLibrary();
@@ -35,7 +37,7 @@ namespace Unitic_BE.Services
             return paymentUrl;
         }
 
-        public VnPaymentResponseModel PaymentExecute(IQueryCollection collections)
+        public VnPaymentResponse PaymentExecute(IQueryCollection collections)
         {
             var vnpay = new VnPayLibrary();
 
@@ -61,12 +63,12 @@ namespace Unitic_BE.Services
             bool checkSignature = vnpay.ValidateSignature(vnp_SecureHash, _configuration["Vnpay:HashSecret"]);
             if (!checkSignature)
             {
-                return new VnPaymentResponseModel
+                return new VnPaymentResponse
                 {
                     Success = false,
                 };
             }
-            return new VnPaymentResponseModel
+            return new VnPaymentResponse
             {
                 Success = true,
                 PaymentMethod = "VnPay",

@@ -9,9 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Unitic_BE.Abstracts;
 using Unitic_BE.Contracts;
 using Unitic_BE.Entities;
-using Unitic_BE.Requests;
+using Unitic_BE.DTOs.Requests;
 using Unitic_BE.Services;
-using WebTicket.Domain.Requests;
 
 namespace Unitic_BE.Controllers
 {
@@ -37,7 +36,7 @@ namespace Unitic_BE.Controllers
             {
                 name = "Customer";
             }
-            var vnPayModel = new VnPaymentRequestModel
+            var vnPayModel = new VnPaymentRequest
             {
                 OrderId = new Random().Next(1000, 10000),
                 Amount = 99000,
