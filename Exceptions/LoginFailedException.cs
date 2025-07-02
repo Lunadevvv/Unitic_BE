@@ -1,7 +1,7 @@
 ﻿namespace Unitic_BE.Exceptions;
 
 //primary constructor
-public class LoginFailedException(string email) : Exception($"wrong email or password.");
+public class LoginFailedException() : Exception($"wrong email or password.");
 
 //viết hoàn chỉnh
 

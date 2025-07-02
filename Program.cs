@@ -13,6 +13,13 @@ using Unitic_BE.Processors;
 using Unitic_BE.Repositories;
 using Unitic_BE.Services;
 
+using Quartz;
+using Unitic_BE.QuartzJob;
+using Unitic_BE.QuartzScheduler;
+using Unitic_BE.Seeder;
+
+
+
 namespace Unitic_BE
 {
     public class Program
@@ -61,6 +68,41 @@ builder.Services.AddMvc();
 
             builder.Services.AddControllers();
 
+            //DI service, repository
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IAuthTokenProcessor, AuthTokenProcessor>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IGoogleService, GoogleService>();
+            builder.Services.AddScoped<IUniversityRepository, UniversityRepository>();
+            builder.Services.AddScoped<IUniversityService, UniversityService>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IEventRepository, EventRepository>();
+            builder.Services.AddScoped<IEventService, EventService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+
+            //add quartz job DI
+            builder.Services.AddScoped<IEventJobScheduler, QuartzEventJobScheduler>();
+            builder.Services.AddScoped<UpdateEventStatusJob>();
+
+            //Add Quartz
+            builder.Services.AddQuartz(opt =>
+            {
+
+                opt.UsePersistentStore(s =>
+                {
+                    s.UseProperties = true; //cho phép sử dụng properties
+                    s.UseSqlServer(builder.Configuration.GetConnectionString("QuartzConnection"));
+                    s.UseNewtonsoftJsonSerializer(); //sử dụng Newtonsoft.Json để serialize/deserialize job data
+                });
+            });
+            // Add the Quartz.NET hosted service
+            builder.Services.AddQuartzHostedService(q =>
+            {
+                q.WaitForJobsToComplete = true;
+            });
+
             //lấy JwtOptions từ appsettings.json
             //ánh xạ vào property trong JwtOptions class qua DI
             builder.Services.Configure<JwtOptions>(
@@ -76,6 +118,8 @@ builder.Services.AddMvc();
 
             }).AddEntityFrameworkStores<ApplicationDbContext>();
             // .AddUserValidator<CustomUserValidator>();
+            //add custom user validator
+            builder.Services.AddScoped<CustomValidator>();
 
             builder.Services.AddDbContext<ApplicationDbContext>(opt =>
             {
@@ -159,18 +203,22 @@ builder.Services.AddMvc();
             builder.Services.Configure<GmailOptions>(
                 builder.Configuration.GetSection(GmailOptions.GmailOptionsKey)
             );
-
-            //DI service, repository
-            builder.Services.AddScoped<IAccountService, AccountService>();
-            builder.Services.AddScoped<IAuthTokenProcessor, AuthTokenProcessor>();
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<IGoogleService, GoogleService>();
-            builder.Services.AddScoped<IEmailService, EmailService>();
-            builder.Services.AddScoped<IVnPayService, VnPayService>();
             
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
+
+            //Tạo scope để chạy seeder khởi tạo data ban đầu sau đó dispose scope
+            //khởi tạo data mỗi khi chạy app
+            using (var scope = app.Services.CreateScope())
+            {
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+                //cách khác để chạy đồng bộ trong hàm không phải async
+                Seeder.Seeder.SeedAdminDataAsync(userManager).GetAwaiter().GetResult();
+
+
+            }
+
             app.UseHttpsRedirection(); //chuyển hướng http tới https
             app.UseExceptionHandler();
             

@@ -73,12 +73,7 @@ namespace Unitic_BE.Services
                     throw new Exception("Failed to create user from Google login.");
                 }
                 var addRoleResult = await _userManager.AddToRoleAsync(user, GetStringIdentityRoleName(Role.User));
-                await _userManager.UpdateAsync(user); //cập nhật user sau khi thêm role
-                if (!addRoleResult.Succeeded)
-                {
-                    // Log hoặc ném exception để biết lỗi
-                    throw new Exception("Add role failed: " + string.Join(", ", addRoleResult.Errors.Select(e => e.Description)));
-                }
+
             }
 
             IList<string> roles = await _userManager.GetRolesAsync(user);
