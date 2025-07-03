@@ -81,7 +81,9 @@ builder.Services.AddMvc();
             builder.Services.AddScoped<IEventService, EventService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
-
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
             //add quartz job DI
             builder.Services.AddScoped<IEventJobScheduler, QuartzEventJobScheduler>();
             builder.Services.AddScoped<UpdateEventStatusJob>();

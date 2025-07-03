@@ -5,7 +5,7 @@ namespace Unitic_BE.Abstracts
 {
     public interface IVnPayService
     {
-        string CreatePaymentUrl(HttpContext context, VnPaymentRequest model, int accId);
-        VnPaymentResponse PaymentExecute(IQueryCollection collections);
+        string CreatePaymentUrl( VnPaymentRequest model);
+        VnPaymentResponse GetPaymentResult(IQueryCollection collections);
     }
 }
