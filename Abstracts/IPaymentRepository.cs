@@ -9,5 +9,6 @@ namespace Unitic_BE.Abstracts
         Task<Payment?> GetLastPayment();
         Task<Payment?> GetPayment(string paymentId, string userId);
         Task CreatePayment(Payment payment);
+        Task UpdatePayment(Payment payment);
     } 
 }

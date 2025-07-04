@@ -8,7 +8,7 @@ namespace Unitic_BE.Repositories
     {
         private readonly ApplicationDbContext _context;
 
-        public PaymentRepository(ApplicationDbContext  context)
+        public PaymentRepository(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -43,6 +43,19 @@ namespace Unitic_BE.Repositories
             _context.Payments.Add(payment);
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdatePayment(Payment updatedPayment)
+        {
+            var existingPayment = await _context.Payments.FirstOrDefaultAsync(p => p.PaymentId == updatedPayment.PaymentId);
+            if (existingPayment == null)
+            {
+                throw new Exception("Payment not found");
+            }
+            // Because payment status will be the only value that change
+            if (updatedPayment.Status != null)
+                existingPayment.Status = updatedPayment.Status;
+            await _context.SaveChangesAsync();
+        } 
 
     }
 

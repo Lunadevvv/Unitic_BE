@@ -6,11 +6,14 @@ using Unitic_BE.Services;
 using Unitic_BE.Utilities;
 using Unitic_BE.Enums;
 using System.Security.Claims;
+using Unitic_BE.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Unitic_BE.Controllers
 {
     [Route("Unitic/[controller]")]
     [ApiController]
+    // [Authorize]
     public class PaymentController : ControllerBase
     {
         private readonly IVnPayService _vnPayService;
@@ -50,26 +53,19 @@ namespace Unitic_BE.Controllers
             return Ok(payment);
         }
 
-        // [HttpPost("pay")]
-        // public async Task<IActionResult> Pay([FromBody] PaymentDto dto)
-        // {
-        //     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        [HttpPost("pay")]
+        public async Task<IActionResult> Pay([FromBody] PaymentRequest dto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        //     if (string.IsNullOrEmpty(userId))
-        //         return Unauthorized("User ID not found");
-
-        //     var payment = new Payment
-        //     {
-        //         PaymentId = Guid.NewGuid().ToString(), // Or use your own generator
-        //         CreatedDate = DateTime.UtcNow,
-        //         Price = dto.Price,
-        //         Status = dto.Status
-        //     };
-
-        //     await _paymentService.PayMoney(payment, userId);
-        //     return Ok(new { Message = "Payment successful" });
-        // }
+            if (string.IsNullOrEmpty(userId))
+                // return Unauthorized("User ID not found");
+                userId = "Anonymous";
+            await _paymentService.PayMoney(dto, userId);
+            return Ok(new { Message = "Payment successful" });
+        }
     
+
         /// <summary>
         /// Initializes a new payment request with the specified amount and description.
         /// </summary>
@@ -81,7 +77,14 @@ namespace Unitic_BE.Controllers
         {
             try
             {
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId == null) {
+                    // return BadRequest("Invalid user");
+                    // Để tạm để test
+                    userId = "Anonymous";
+                }
                 var paymentId = await _paymentService.GeneratePaymentId();
+                Console.WriteLine("paymentid ", paymentId);
                 var ipAddress = Utils.GetIpAddress(HttpContext);
                 var vnPayModel = new VnPaymentRequest
                 {
@@ -91,6 +94,13 @@ namespace Unitic_BE.Controllers
                     Description = description, //Thông tin mô tả nội dung thanh toán, không dấu và không chứa ký tự đặc biệt.
                     IpAddress = ipAddress,//Địa chỉ IP của người thực hiện giao dịch.
                 };
+                var paymentModel = new Payment
+                {
+                    PaymentId = paymentId,
+                    Price = moneyToPay,
+                    Status = PaymentStatus.InProgress.ToString()
+                };
+                await _paymentService.CreatePayment(paymentModel, userId);
                 var paymentUrl = _vnPayService.CreatePaymentUrl(vnPayModel);
                 return Ok(paymentUrl);
             }
@@ -103,7 +113,7 @@ namespace Unitic_BE.Controllers
         /// <summary>
         /// Handles Vnpay IPN callback after user payment
         /// ! Don't call this vnpay will call this
-        /// ! Currently don't work on localhost environments
+        /// ! Don't work on localhost environments
         /// </summary>
         /// <returns>A result of create payment data</returns>
         [HttpGet("IpnAction(auto-call)")]
@@ -113,10 +123,16 @@ namespace Unitic_BE.Controllers
             {
                 try
                 {
+                    string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (userId == null)
+                    {
+                        // return BadRequest("Invalid user");
+                        // Để tạm để test
+                        userId = "Anonymous";
+                    }
                     var paymentResult = _vnPayService.GetPaymentResult(Request.Query);
                     if (paymentResult.Success)
                     {
-                        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                         if (paymentResult.Success)
                         {
                             var payment = new Payment
@@ -125,7 +141,7 @@ namespace Unitic_BE.Controllers
                                 PaymentId = paymentResult.PaymentId,
                                 Status = PaymentStatus.Success.ToString(),
                             };
-                            await _paymentService.CreatePayment(payment, userId);
+                            await _paymentService.UpdatePaymentStatus(payment);
                             return Ok();
                         }
                     }
@@ -153,24 +169,30 @@ namespace Unitic_BE.Controllers
             {
                 try
                 {
+                    string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (userId == null) {
+                        // return BadRequest("Invalid user");
+                        // Để tạm để test
+                        userId = "Anonymous";
+                    }
                     var paymentResult = _vnPayService.GetPaymentResult(Request.Query);
+                    var payment = new Payment();
                     if (paymentResult.Success)
                     {
-                        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                        if (userId == null) {
-                            userId = "Anonymous";
-                        }
-                        var payment = new Payment
-                        {
-                            Price = Int32.Parse(paymentResult.Money),
-                            PaymentId = paymentResult.PaymentId,
-                            Status = PaymentStatus.Success.ToString(),
-                        };
-                        await _paymentService.CreatePayment(payment, userId);
+                        Console.WriteLine("Payment success");
+                        payment.PaymentId = paymentResult.PaymentId;
+                        payment.Status = PaymentStatus.Success.ToString();
+                        await _paymentService.UpdatePaymentStatus(payment);
                         return Ok(paymentResult);
                     }
-
-                    return BadRequest(paymentResult);
+                    else
+                    {
+                        payment.PaymentId = paymentResult.PaymentId;
+                        payment.Status = PaymentStatus.Failed.ToString();
+                        Console.WriteLine("Payment Unsuccess");
+                        await _paymentService.UpdatePaymentStatus(payment);
+                        return BadRequest(paymentResult);
+                    }
                 }
                 catch (Exception ex)
                 {

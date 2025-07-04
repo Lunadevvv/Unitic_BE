@@ -9,7 +9,8 @@ namespace Unitic_BE.Abstracts
         Task<List<Payment>> GetAllUserPayment(string userId);
         Task<Payment> GetPayment(string paymentId, string userId);
         Task CreatePayment(Payment payment, string userId);
-        Task PayMoney(Payment payment, string userId);
+        Task PayMoney(PaymentRequest payment, string userId);
+        Task UpdatePaymentStatus (Payment payment);
         Task<string> GeneratePaymentId();
     } 
 }

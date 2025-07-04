@@ -42,21 +42,37 @@ namespace Unitic_BE.Services
             await _paymentRepository.CreatePayment(payment);
         }
 
-        public async Task PayMoney(Payment payment, string userId)
+        public async Task PayMoney(PaymentRequest paymentDto, string userId)
         {
-            payment.UserId = userId;
-            payment.PaidDate = DateTime.Now;
+            var payment = new Payment
+            {
+                Price = paymentDto.Money,
+                UserId = userId,
+                PaymentId = await GeneratePaymentId(),
+                PaidDate = DateTime.Now,
+                Status = PaymentStatus.Success.ToString(),
+            };
             await _paymentRepository.CreatePayment(payment);
         }
 
         public async Task<string> GeneratePaymentId()
-            {
-                Payment lastPayment = await _paymentRepository.GetLastPayment();
-                if (lastPayment == null) return "Payment0001";
-                int id = int.Parse(lastPayment.PaymentId.Substring(4)) + 1; // lấy id cuối cùng và cộng thêm 1
-                string generatedid = "Payment" + id.ToString("D4");
-                return generatedid;
+        {
+            var lastPayment = await _paymentRepository.GetLastPayment();
+            if (lastPayment == null) return "Payment0001";
+            int id = int.Parse(lastPayment.PaymentId.Substring(lastPayment.PaymentId.Length-4)) + 1; // lấy id cuối cùng và cộng thêm 1
+            string generatedId = "Payment" + id.ToString("D4");
+            return generatedId;
         }
 
+        public async Task UpdatePaymentStatus(Payment payment)
+        {
+            var paymentStatus = new Payment
+            {
+                PaymentId = payment.PaymentId,
+                Status = payment.Status
+            };
+            await _paymentRepository.UpdatePayment(paymentStatus);
+
+        }
     }
 }
