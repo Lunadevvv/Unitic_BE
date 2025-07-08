@@ -19,7 +19,9 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<string>
     public DbSet<University> Universities { get; set; }
     public DbSet<Event> Events { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<Payment> Payments { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
+
     {
         base.OnModelCreating(builder);
 
