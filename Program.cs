@@ -214,6 +214,9 @@ builder.Services.AddMvc();
             //khởi tạo data mỗi khi chạy app
             using (var scope = app.Services.CreateScope())
             {
+                var data = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                data.Database.Migrate();
+
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
                 //cách khác để chạy đồng bộ trong hàm không phải async
                 Seeder.Seeder.SeedAdminDataAsync(userManager).GetAwaiter().GetResult();
