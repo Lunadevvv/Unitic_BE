@@ -13,7 +13,7 @@ namespace Unitic_BE.Controllers
 {
     [Route("Unitic/[controller]")]
     [ApiController]
-    // [Authorize]
+    [Authorize]
     public class PaymentController : ControllerBase
     {
         private readonly IVnPayService _vnPayService;
@@ -44,7 +44,7 @@ namespace Unitic_BE.Controllers
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) {
-                userId = "Anonymous";
+                return BadRequest("Invalid user");
             }
             var payment = await _paymentService.GetPayment(paymentId, userId);
             if (payment == null)
@@ -59,8 +59,7 @@ namespace Unitic_BE.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(userId))
-                // return Unauthorized("User ID not found");
-                userId = "Anonymous";
+                return Unauthorized("User ID not found");
             await _paymentService.PayMoney(dto, userId);
             return Ok(new { Message = "Payment successful" });
         }
@@ -73,23 +72,20 @@ namespace Unitic_BE.Controllers
         /// <param name="description">The description or note associated with the payment.</param>
         /// <returns>A URL or token to redirect the user to the third-party payment gateway.</returns>
         [HttpGet("vnpay-request")]
-        public async Task<IActionResult> CreateVnpayPayment(int moneyToPay, string description)
+        public async Task<IActionResult> CreateVnpayPayment([FromQuery] int money, [FromQuery] string description)
         {
             try
             {
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (userId == null) {
-                    // return BadRequest("Invalid user");
-                    // Để tạm để test
-                    userId = "Anonymous";
+                    return BadRequest("Invalid user");
                 }
                 var paymentId = await _paymentService.GeneratePaymentId();
-                Console.WriteLine("paymentid ", paymentId);
                 var ipAddress = Utils.GetIpAddress(HttpContext);
                 var vnPayModel = new VnPaymentRequest
                 {
                     PaymentId = paymentId, //Mã tham chiếu giao dịch (Transaction Reference). Đây là mã số duy nhất dùng để xác định giao dịch. Bắt buộc và không được trùng lặp giữa các giao dịch.
-                    Amount = moneyToPay,// Số tiền thanh toán. Không chứa ký tự phân cách thập phân, phần nghìn, hoặc ký hiệu tiền tệ.
+                    Amount = money,// Số tiền thanh toán. Không chứa ký tự phân cách thập phân, phần nghìn, hoặc ký hiệu tiền tệ.
                     CreatedDate = DateTime.Now,
                     Description = description, //Thông tin mô tả nội dung thanh toán, không dấu và không chứa ký tự đặc biệt.
                     IpAddress = ipAddress,//Địa chỉ IP của người thực hiện giao dịch.
@@ -97,7 +93,7 @@ namespace Unitic_BE.Controllers
                 var paymentModel = new Payment
                 {
                     PaymentId = paymentId,
-                    Price = moneyToPay,
+                    Price = money,
                     Status = PaymentStatus.InProgress.ToString()
                 };
                 await _paymentService.CreatePayment(paymentModel, userId);
@@ -126,9 +122,7 @@ namespace Unitic_BE.Controllers
                     string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                     if (userId == null)
                     {
-                        // return BadRequest("Invalid user");
-                        // Để tạm để test
-                        userId = "Anonymous";
+                        return BadRequest("Invalid user");
                     }
                     var paymentResult = _vnPayService.GetPaymentResult(Request.Query);
                     if (paymentResult.Success)
@@ -171,15 +165,12 @@ namespace Unitic_BE.Controllers
                 {
                     string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                     if (userId == null) {
-                        // return BadRequest("Invalid user");
-                        // Để tạm để test
-                        userId = "Anonymous";
+                        return BadRequest("Invalid user");
                     }
                     var paymentResult = _vnPayService.GetPaymentResult(Request.Query);
                     var payment = new Payment();
                     if (paymentResult.Success)
                     {
-                        Console.WriteLine("Payment success");
                         payment.PaymentId = paymentResult.PaymentId;
                         payment.Status = PaymentStatus.Success.ToString();
                         await _paymentService.UpdatePaymentStatus(payment);
@@ -189,7 +180,6 @@ namespace Unitic_BE.Controllers
                     {
                         payment.PaymentId = paymentResult.PaymentId;
                         payment.Status = PaymentStatus.Failed.ToString();
-                        Console.WriteLine("Payment Unsuccess");
                         await _paymentService.UpdatePaymentStatus(payment);
                         return BadRequest(paymentResult);
                     }

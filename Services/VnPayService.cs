@@ -57,13 +57,6 @@ namespace Unitic_BE.Services
                     vnpay.AddResponseData(key, value.ToString());
                 }
             }
-            // Console.WriteLine("Lấy giá trị bên Response data");
-            // foreach (KeyValuePair<string, string> pair in vnpay._responseData)
-            // {
-            //     Console.WriteLine(pair.Key + ": " + pair.Value);
-            // }
-
-            // Debugger.Break();
             var paymentId = vnpay.GetResponseData("vnp_TxnRef");
             var vnpayTranId = vnpay.GetResponseData("vnp_TransactionNo");
             var vnp_SecureHash = collections.FirstOrDefault(p => p.Key == "vnp_SecureHash").Value;
