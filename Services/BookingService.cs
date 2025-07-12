@@ -1,5 +1,6 @@
 using Unitic_BE.Abstracts;
 using Unitic_BE.DTOs;
+using Unitic_BE.DTOs.Requests;
 using Unitic_BE.Entities;
 using Unitic_BE.Exceptions;
 
@@ -80,8 +81,11 @@ public class BookingService : IBookingService
         }
     }
 
-    public async Task TransferTicketAsync(string bookingId, string userId, string userIdTransfer)
+    public async Task TransferTicketAsync(TransferBookingRequest transferBookingRequest)
     {
+        string bookingId = transferBookingRequest.BookingId;
+        string userId = transferBookingRequest.UserId;
+        string targetUserId = transferBookingRequest.TransferAccountId;
         var booking = await _bookingRepository.GetByIdAsync(bookingId);
         if (booking == null)
         {
@@ -92,12 +96,12 @@ public class BookingService : IBookingService
             throw new NotValidUserException();
         }
         //Check user có không trước khi luuw
-        var user = await _accountService.GetCurrentUserAsync(userIdTransfer);
+        var user = await _accountService.GetCurrentUserAsync(targetUserId);
         if (user == null)
         {
-            throw new ObjectNotFoundException($"{userIdTransfer}");
+            throw new ObjectNotFoundException($"{targetUserId}");
         }
-        booking.AccountId = userIdTransfer;
+        booking.AccountId = targetUserId;
         await _bookingRepository.UpdateAsync(booking);
 
 

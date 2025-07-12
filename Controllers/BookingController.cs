@@ -85,7 +85,7 @@ public class BookingController : ControllerBase
     {
         try
         {
-            await _bookingService.TransferTicketAsync(bookingRequest.BookingId, bookingRequest.UserId, bookingRequest.TransferAccountId);
+            await _bookingService.TransferTicketAsync(bookingRequest);
             return Ok("Transfer ticket succesful");
         }
         catch (NotValidUserException nvu)
