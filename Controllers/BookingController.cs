@@ -54,8 +54,7 @@ public class BookingController : ControllerBase
         {
             string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
-                // return BadRequest("User ID not found");
-                userId = "User0001";
+                return BadRequest("User ID not found");
             await _bookingService.BuyTicketAsync(bookingRequest, userId);
             return Ok("Ticket purchased successfully");
         }
