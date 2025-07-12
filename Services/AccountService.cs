@@ -195,4 +195,20 @@ public class AccountService : IAccountService
     {
         return await _userRepository.GetUserById(userId);
     }
+
+    public Task<bool> CheckMoneySufficent(int money, int userMoney)
+    {
+        return Task.FromResult(userMoney >= money);
+    }
+
+    public async Task<bool> ChangeUserMoney(User user)
+    {
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+        {
+            return true;
+        }
+        var errorMessages = result.Errors.Select(e => e.Description);
+        throw new Exception("Failed to update user: " + string.Join("; ", errorMessages));
+    }
 }

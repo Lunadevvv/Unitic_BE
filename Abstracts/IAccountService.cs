@@ -12,4 +12,7 @@ public interface IAccountService
     Task ChangePassword(string? userId, ChangePasswordRequest changePasswordRequest);
     Task<User> GetCurrentUserAsync(string userId);
     // Task RegisterRoleAsync(string role, RegisterRequest registerRequest);
+    Task<bool> CheckMoneySufficent(int money, int userMoney);
+    Task<bool> ChangeUserMoney(User user);
+
 }

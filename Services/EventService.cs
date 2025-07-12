@@ -149,6 +149,27 @@ namespace Unitic_BE.Services
 
         }
 
+        public async Task<Event> CheckEventStatusAsync(string id)
+        {
+            Event getEvent = await _repo.GetEventByIdAsync(id);
+            if (getEvent == null)
+            {
+                throw new ObjectNotFoundException($"Event with id {id} is");
+            }
+            if (getEvent.Status == EventStatus.SoldOut)
+            {
+            throw new EventSoldOutException();
+            }
+            if (getEvent.Status == EventStatus.Completed)
+            {
+                throw new EventFinishException();
+            }
+            if (getEvent.Status == EventStatus.Cancelled)
+            {
+                throw new EventCancelException();
+            }
+            return getEvent;
+        }
     }
 }
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Unitic_BE;
 
@@ -11,9 +12,11 @@ using Unitic_BE;
 namespace Unitic_BE.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250710080000_AddBookingTable")]
+    partial class AddBookingTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -207,9 +210,8 @@ namespace Unitic_BE.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -299,23 +301,6 @@ namespace Unitic_BE.Migrations
                     b.HasIndex("CateID");
 
                     b.ToTable("Events");
-                });
-
-            modelBuilder.Entity("Unitic_BE.Entities.Feedback", b =>
-                {
-                    b.Property<string>("FeedbackId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("FeedbackId");
-
-                    b.ToTable("Feedbacks");
                 });
 
             modelBuilder.Entity("Unitic_BE.Entities.Payment", b =>

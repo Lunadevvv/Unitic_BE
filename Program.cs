@@ -62,7 +62,7 @@ namespace Unitic_BE
                 });
             });
 
-builder.Services.AddMvc();
+            builder.Services.AddMvc();
 
             // Add services to the container.
 
@@ -84,6 +84,8 @@ builder.Services.AddMvc();
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddScoped<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
             //add quartz job DI
             builder.Services.AddScoped<IEventJobScheduler, QuartzEventJobScheduler>();
             builder.Services.AddScoped<UpdateEventStatusJob>();
