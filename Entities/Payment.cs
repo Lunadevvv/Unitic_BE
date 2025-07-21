@@ -10,12 +10,14 @@ namespace Unitic_BE.Entities
     public class Payment
     {
         [Key]
-        public string PaymentId { get; set; }= string.Empty; 
+        public string PaymentId { get; set; } = string.Empty;
         public int Price { get; set; } = 0;
-        public string Status { get; set;} = string.Empty;
+        public string Status { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; }
         public DateTime PaidDate { get; set; }
-        public  string UserId { get; set; } = string.Empty;
+
+        [ForeignKey("UserId")]
+        public string UserId { get; set; } = string.Empty;
 
     }
 }

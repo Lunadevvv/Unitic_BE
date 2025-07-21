@@ -134,6 +134,5 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<string>
             .WithMany(u => u.Events)
             .HasForeignKey(e => e.CateID);
 
-
     }
 }
