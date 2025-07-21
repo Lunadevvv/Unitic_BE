@@ -62,6 +62,15 @@ namespace Unitic_BE
                 });
             });
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend",
+                    builder => builder
+                                    .AllowAnyOrigin()
+                                    .AllowAnyHeader()
+                                    .AllowAnyMethod());
+            });
+
             builder.Services.AddMvc();
 
             // Add services to the container.
@@ -231,7 +240,7 @@ namespace Unitic_BE
             
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseCors("AllowFrontend");
 
             app.MapControllers();
 
