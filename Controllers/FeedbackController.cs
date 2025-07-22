@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -8,6 +9,7 @@ using Unitic_BE.Exceptions;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class FeedbackController : ControllerBase
 {
     private readonly IFeedbackService _service;
