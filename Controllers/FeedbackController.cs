@@ -44,14 +44,12 @@ public class FeedbackController : ControllerBase
             }
             Feedback feedback = new Feedback
             {                
+                BookingId = feedbackDto.BookingId,
                 Content = feedbackDto.Review,
                 UserId = userId,
             };
-            var created = await _service.CreateAsync(feedback, feedbackDto.EventId);
-            if (created == true)
-                return Ok();
-            else
-                return BadRequest("There is a error in adding feedback");
+            await _service.CreateAsync(feedback, feedbackDto.EventId);
+            return Ok();
         }
         catch (Exception ex)
         {

@@ -58,22 +58,22 @@ public class BookingService : IBookingService
             int totalCost = request.Quantity * evt.Price;
             if (user.wallet < totalCost)
                 throw new Exception("Insufficient funds");
-
             user.wallet -= totalCost;
             await _accountService.ChangeUserMoney(user);
-
+            if (evt.Date_End < DateTime.Now)
+                throw new Exception("Event already end");
             for (int i = 0; i < request.Quantity; i++)
-            {
-                var ticket = new Booking
                 {
-                    BookingId = await GenerateBookingId(),
-                    EventId = request.EventID,
-                    AccountId = user.Id,
-                    Status = BookingStatus.Paid.ToString(),
-                    CreatedDate = DateTime.UtcNow,
-                };
-                await _bookingRepository.CreateAsync(ticket);
-            }
+                    var ticket = new Booking
+                    {
+                        BookingId = await GenerateBookingId(),
+                        EventId = request.EventID,
+                        AccountId = user.Id,
+                        Status = BookingStatus.Paid.ToString(),
+                        CreatedDate = DateTime.UtcNow,
+                    };
+                    await _bookingRepository.CreateAsync(ticket);
+                }
         }
         catch (Exception ex)
         {

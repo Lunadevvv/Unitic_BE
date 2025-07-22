@@ -6,7 +6,7 @@ public interface IFeedbackService
 {
     Task<IEnumerable<Feedback>> GetAllAsync();
     Task<Feedback> GetByIdAsync(string id);
-    Task<bool> CreateAsync(Feedback feedback, string eventId);
+    Task CreateAsync(Feedback feedback, string eventId);
     Task UpdateAsync(Feedback feedback);
     Task DeleteAsync(string id);
 }
