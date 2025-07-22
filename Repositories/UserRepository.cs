@@ -30,7 +30,7 @@ public class UserRepository : IUserRepository
     {
         var university = await _applicationDbContext.Universities
             .FirstOrDefaultAsync(u => u.Name == universityName);
-        if(university != null)
+        if (university != null)
         {
             return university.Id;
         }
@@ -42,6 +42,11 @@ public class UserRepository : IUserRepository
         var user = await _applicationDbContext.Users
             .FirstOrDefaultAsync(u => u.Id == userId);
         return user;
+    }
+    public async Task<List<User>> GetAllUsers()
+    {
+        List<User> users = await _applicationDbContext.Users.ToListAsync();
+        return users;
     }
     
 }

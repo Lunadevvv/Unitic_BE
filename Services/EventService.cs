@@ -55,6 +55,7 @@ namespace Unitic_BE.Services
             {
                 EventID = await GenerateEventId(),
                 Name = myEventRequest.Name,
+                Image = myEventRequest.Image,
                 Status = EventStatus.Private,
                 Description = myEventRequest.Description,
                 Date_Start = DateTime.Parse(myEventRequest.Date_Start),
@@ -103,6 +104,7 @@ namespace Unitic_BE.Services
             }
             // Update the myEvent properties
             myEvent.Name = myEventRequest.Name;
+            myEvent.Image = myEventRequest.Image;
             myEvent.Description = myEventRequest.Description;
             myEvent.Date_Start = DateTime.Parse(myEventRequest.Date_Start);
             myEvent.Date_End = DateTime.Parse(myEventRequest.Date_End);
