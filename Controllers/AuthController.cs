@@ -75,6 +75,9 @@ namespace Unitic_BE.Controllers
                 return BadRequest("Invalid registration request.");
             }
             await _accountService.RegisterAsync(registerRequest);
+            var body = $"Thank you for choosing Unitic! Your account has been registed successfully!";
+            var sendEmailRequest = new SendEmailRequest(registerRequest.Email, "Registed successfully", body);
+            await _emailService.SendEmailAsync(sendEmailRequest);
             return Ok("Registration successful.");
         }
 
@@ -142,19 +145,6 @@ namespace Unitic_BE.Controllers
             await _accountService.ChangePassword(userId, changePasswordRequest);
             return Ok("Changed Password successfully!");
         }
-
-        // [HttpPost("register/{role}")]
-        // [Authorize(Roles = "Admin")]
-        // //Only admin can register roles
-        // public async Task<IActionResult> RegisterRoleAsync(string role, [FromBody] RegisterRequest registerRequest)
-        // {
-        //     if (registerRequest == null)
-        //     {
-        //         return BadRequest("Invalid registration request.");
-        //     }
-        //     await _accountService.RegisterRoleAsync(role, registerRequest);
-        //     return Ok("Registration successful.");
-        // }
     }
 
 }

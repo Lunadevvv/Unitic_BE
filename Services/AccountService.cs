@@ -211,4 +211,18 @@ public class AccountService : IAccountService
         var errorMessages = result.Errors.Select(e => e.Description);
         throw new Exception("Failed to update user: " + string.Join("; ", errorMessages));
     }
+
+    public async Task<List<User>> GetAllUsers()
+    {
+        List<User> users = await _userRepository.GetAllUsers();
+        return users;
+    }
+
+    public async Task<User> GetUserById(string accountId)
+    {
+        if (accountId == null)
+            throw new Exception("AccountID is empty");
+        User user = await _userRepository.GetUserById(accountId);
+        return user;
+    }
 }
