@@ -1,5 +1,7 @@
 ﻿using Unitic_BE.Entities;
 using Unitic_BE.DTOs.Requests;
+using Unitic_BE.Enums;
+using Unitic_BE.DTOs.Responses;
 
 namespace Unitic_BE.Abstracts;
 
@@ -13,6 +15,7 @@ public interface IAccountService
     Task<User> GetCurrentUserAsync(string userId);
     Task<bool> CheckMoneySufficent(int money, int userMoney);
     Task<bool> ChangeUserMoney(User user);
-    Task<List<User>> GetAllUsers();
-    Task<User> GetUserById(string accountId);
+    Task<List<AccountResponse>> GetAllUsers();
+    Task<AccountResponse> GetUserById(string accountId);
+    Task UpdateAccountRoleAsync(string accountId, Role role);
 }

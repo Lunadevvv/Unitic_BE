@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
+using Unitic_BE.Enums;
 using Unitic_BE.Exceptions;
 
 namespace Unitic_BE.Entities;
@@ -11,7 +12,7 @@ public class User : IdentityUser<string>
     public string Mssv { get; set; } = string.Empty;
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
-
+    public Role Role { get; set; } = Role.User; // Default role is User, can be changed to Admin or other roles as needed.
     public string? UniversityId { get; set; } // FK từ bảng university
 
     [ForeignKey("UniversityId")]

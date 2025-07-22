@@ -1,17 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Unitic_BE.Abstracts;
 
 namespace Unitic_BE.Controllers
 {
-    [Route("Unitic/[controller]")]
+    [Route("Unitic/account")]
     [ApiController]
-    public class AccountController : Controller
+    public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
 
@@ -28,7 +24,7 @@ namespace Unitic_BE.Controllers
             return Ok(users);
         }
 
-        [HttpGet("/{accountId}")]
+        [HttpGet("{accountId}")]
         public async Task<IActionResult> GetAccountById(string accountId)
         {
             var user = await _accountService.GetUserById(accountId);
