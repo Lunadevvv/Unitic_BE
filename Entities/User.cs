@@ -16,9 +16,12 @@ public class User : IdentityUser<string>
     public string? UniversityId { get; set; } // FK từ bảng university
 
     [ForeignKey("UniversityId")]
+
     public University? University { get; set; } // Navigation property
+    public ICollection<Payment> Payments { get; set; }
     //factory method to create a new user instance
-    public static User Create(string id, string mssv,string email, string firstName, string lastName, string universityId)
+
+    public static User Create(string id, string mssv, string email, string firstName, string lastName, string universityId)
     {
 
         //chuyển university name thành university id

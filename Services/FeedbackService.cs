@@ -38,8 +38,6 @@ public class FeedbackService : IFeedbackService
                 throw new Exception("Can't get event");
             if (booking == null)
                 throw new Exception("Can't get event");
-            if (booking.AccountId != feedback.UserId)
-                throw new Exception("This is not user booking");
             if (feedbackEvent.EventID != eventId)
                 throw new Exception("This is not user event");
             if (feedbackEvent.Date_End > currentDate)

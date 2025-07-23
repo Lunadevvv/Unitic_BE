@@ -39,16 +39,10 @@ public class FeedbackController : ControllerBase
         try
         {
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null)
-            {
-                throw new NotValidUserException();
-            }
             Feedback feedback = new Feedback
             {                
                 BookingId = feedbackDto.BookingId,
                 Content = feedbackDto.Review,
-                UserId = userId,
             };
             await _service.CreateAsync(feedback, feedbackDto.EventId);
             return Ok();

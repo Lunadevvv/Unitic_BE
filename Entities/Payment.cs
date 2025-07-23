@@ -16,8 +16,9 @@ namespace Unitic_BE.Entities
         public DateTime CreatedDate { get; set; }
         public DateTime PaidDate { get; set; }
 
-        [ForeignKey("UserId")]
         public string UserId { get; set; } = string.Empty;
+        [ForeignKey("UserId")]
+        public User User { get; set; }
 
     }
 }
