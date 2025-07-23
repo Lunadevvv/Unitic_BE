@@ -67,6 +67,10 @@ namespace Unitic_BE.Repositories
                 throw new KeyNotFoundException($"Event with ID {eventId} not found.");
             }
             myEvent.Slot -= amount;
+            if (myEvent.Slot <= 0)
+            {
+                myEvent.Status = EventStatus.SoldOut; // Update status if slot is 0 or less
+            }
             _context.Events.Update(myEvent);
             await _context.SaveChangesAsync();
         }

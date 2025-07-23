@@ -131,12 +131,12 @@ namespace Unitic_BE.Services
             return generatedId;
         }
 
-        public async Task UpdateEventStatusAsync(string id, EventStatus status)
+        public async Task UpdateEventStatusAsync(string eventId, EventStatus status)
         {
-            var myEvent = await _repo.GetEventByIdAsync(id);
+            var myEvent = await _repo.GetEventByIdAsync(eventId);
             if (myEvent == null)
             {
-                throw new ObjectNotFoundException($"Event with id {id}");
+                throw new ObjectNotFoundException($"Event with id {eventId}");
             }
 
             myEvent.Status = status;
@@ -144,10 +144,10 @@ namespace Unitic_BE.Services
 
             //gọi scheduler tạo job nếu update lên published
             if (status == EventStatus.Published)
-                await _scheduler.ScheduleUpdateStatusJobAsync(id, myEvent.Date_Start);
+                await _scheduler.ScheduleUpdateStatusJobAsync(eventId, myEvent.Date_Start);
             //ko phải published thì xóa job
             else
-                await _scheduler.DeleteStatusJobAsync(id);
+                await _scheduler.DeleteStatusJobAsync(eventId);
 
         }
 

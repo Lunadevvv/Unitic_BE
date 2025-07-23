@@ -11,7 +11,7 @@ namespace Unitic_BE.Abstracts
 {
     public interface IEventService
     {
-        Task UpdateEventStatusAsync(string id, EventStatus status);
+        Task UpdateEventStatusAsync(string eventId, EventStatus status);
         Task<List<Event>> GetAllEvents();
         Task<List<Event>> GetAllEventsByStatus(EventStatus status);
         Task AddEventAsync(EventRequest myEventRequest);
