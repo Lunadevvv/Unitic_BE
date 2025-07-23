@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Unitic_BE.Entities
@@ -18,6 +19,7 @@ namespace Unitic_BE.Entities
 
         public string UserId { get; set; } = string.Empty;
         [ForeignKey("Id")]
+        [JsonIgnore]
         public User User { get; set; }
 
     }
