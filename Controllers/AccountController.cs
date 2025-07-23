@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Unitic_BE.Abstracts;
+using Unitic_BE.Enums;
 
 namespace Unitic_BE.Controllers
 {
@@ -29,6 +30,13 @@ namespace Unitic_BE.Controllers
         {
             var user = await _accountService.GetUserById(accountId);
             return Ok(user);
+        }
+
+        [HttpPut("/{accountId}/{role}")]
+        public async Task<IActionResult> UpdateAccountRoleAsync(string accountId, Role role)
+        {
+            await _accountService.UpdateAccountRoleAsync(accountId, role);
+            return Ok($"Account updated successfully to {role}.");
         }
     }
 }

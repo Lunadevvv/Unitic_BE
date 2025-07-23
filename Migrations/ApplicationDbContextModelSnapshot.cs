@@ -328,10 +328,16 @@ namespace Unitic_BE.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("EventID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("FeedbackId");
 
                     b.HasIndex("BookingId")
                         .IsUnique();
+
+                    b.HasIndex("EventID");
 
                     b.ToTable("Feedbacks");
                 });
@@ -581,7 +587,15 @@ namespace Unitic_BE.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Unitic_BE.Entities.Event", "Event")
+                        .WithMany("Feedbacks")
+                        .HasForeignKey("EventID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.Navigation("Booking");
+
+                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("Unitic_BE.Entities.Payment", b =>
@@ -605,7 +619,8 @@ namespace Unitic_BE.Migrations
 
             modelBuilder.Entity("Unitic_BE.Entities.Booking", b =>
                 {
-                    b.Navigation("Feedback");
+                    b.Navigation("Feedback")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Unitic_BE.Entities.Category", b =>
@@ -616,6 +631,8 @@ namespace Unitic_BE.Migrations
             modelBuilder.Entity("Unitic_BE.Entities.Event", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("Feedbacks");
                 });
 
             modelBuilder.Entity("Unitic_BE.Entities.University", b =>

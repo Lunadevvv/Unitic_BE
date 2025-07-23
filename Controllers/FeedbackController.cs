@@ -25,26 +25,27 @@ public class FeedbackController : ControllerBase
         return Ok(await _service.GetAllAsync());
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Feedback>> GetFeedbackById(string id)
+    [HttpGet("{eventId}")]
+    public async Task<ActionResult<List<Feedback>>> GetFeedbacksByEventId(string eventId)
     {
-        var feedback = await _service.GetByIdAsync(id);
+        var feedback = await _service.GetByEventIdAsync(eventId);
+        if (feedback == null) return NotFound();
+        return Ok(feedback);
+    }
+    [HttpGet("{feedbackId}")]
+    public async Task<ActionResult<Feedback>> GetFeedbackById(string feedbackId)
+    {
+        var feedback = await _service.GetByIdAsync(feedbackId);
         if (feedback == null) return NotFound();
         return Ok(feedback);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Feedback>> CreateFeedback([FromBody] CreateFeedback feedbackDto)
+    public async Task<ActionResult<Feedback>> CreateFeedback([FromBody] FeedbackRequest feedbackDto)
     {
         try
         {
-
-            Feedback feedback = new Feedback
-            {                
-                BookingId = feedbackDto.BookingId,
-                Content = feedbackDto.Review,
-            };
-            await _service.CreateAsync(feedback, feedbackDto.EventId);
+            await _service.CreateAsync(feedbackDto);
             return Ok();
         }
         catch (Exception ex)
@@ -61,10 +62,10 @@ public class FeedbackController : ControllerBase
         return Ok();
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteFeedback(string id)
-    {
-        await _service.DeleteAsync(id);
-        return Ok();
-    }
+    // [HttpDelete("{id}")]
+    // public async Task<IActionResult> DeleteFeedback(string id)
+    // {
+    //     await _service.DeleteAsync(id);
+    //     return Ok();
+    // }
 }

@@ -15,7 +15,7 @@ public class Booking
     public string Status { get; set; } = string.Empty; 
     [ForeignKey("EventId")]
     public Event Event {get; set;}
-    public Feedback? Feedback { get; set;}
+    public Feedback Feedback { get; set; } = null!;
     [ForeignKey("Id")]
     public User User{ get; set; }
 }

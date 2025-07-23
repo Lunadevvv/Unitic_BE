@@ -28,6 +28,7 @@ namespace Unitic_BE.Entities
 
         [ForeignKey("CateID")]
         public Category Category { get; set; } // Navigation property to the Category entity
-        public ICollection<Booking> Bookings{ get; set; } = new List<Booking>();
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+        public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
     }
 }

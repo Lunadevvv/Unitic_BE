@@ -2,6 +2,7 @@ using Unitic_BE.Abstracts;
 using Unitic_BE.DTOs;
 using Unitic_BE.DTOs.Requests;
 using Unitic_BE.Entities;
+using Unitic_BE.Enums;
 using Unitic_BE.Exceptions;
 
 public class BookingService : IBookingService
@@ -47,8 +48,11 @@ public class BookingService : IBookingService
         {
             var evt = await _eventService.CheckEventStatusAsync(request.EventID)
                     ?? throw new ObjectNotFoundException($"{request.EventID}");
-
-            if (request.Quantity <= 0 || request.Quantity> evt.Slot)
+            if (evt.Status == EventStatus.InProgress || evt.Status == EventStatus.Completed)
+                throw new Exception("Event already started or finished");
+            if (evt.Status == EventStatus.SoldOut)
+                throw new Exception("Event already sold out");
+            if (request.Quantity <= 0 || request.Quantity > evt.Slot)
             {
                 throw new InvalidQuantityException();
             }
@@ -60,9 +64,8 @@ public class BookingService : IBookingService
                 throw new Exception("Insufficient funds");
             user.wallet -= totalCost;
             await _accountService.ChangeUserMoney(user);
-            if (evt.Date_End < DateTime.Now)
-                throw new Exception("Event already end");
             for (int i = 0; i < request.Quantity; i++)
+            {
                 {
                     var ticket = new Booking
                     {
@@ -73,7 +76,10 @@ public class BookingService : IBookingService
                         CreatedDate = DateTime.UtcNow,
                     };
                     await _bookingRepository.CreateAsync(ticket);
+                    await _eventService.UpdateEventSlotAsync(request.EventID, 1); // Decrease slot by 1 for each ticket booked
                 }
+            }
+            
         }
         catch (Exception ex)
         {

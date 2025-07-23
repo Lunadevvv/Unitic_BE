@@ -12,4 +12,7 @@ public class Feedback
     public DateTime CreatedDate { get; set; }
     [ForeignKey("BookingId")]
     public Booking Booking { get; set; }
+    public string EventID { get; set; } = string.Empty;
+    [ForeignKey("EventID")]
+    public Event Event { get; set; }
 }

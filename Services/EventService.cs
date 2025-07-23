@@ -172,6 +172,11 @@ namespace Unitic_BE.Services
             }
             return getEvent;
         }
+
+        public async Task UpdateEventSlotAsync(string eventId, int amount)
+        {
+            await _repo.UpdateEventSlotAsync(eventId, amount);
+        }
     }
 }
 

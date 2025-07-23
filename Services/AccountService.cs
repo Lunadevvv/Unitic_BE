@@ -244,5 +244,6 @@ public class AccountService : IAccountService
             throw new Exception($"Failed to add user to role {role}: {string.Join(", ", addRoleResult.Errors.Select(e => e.Description))}");
         }
         user.Role = role; // Update the user's role property
+        await _userManager.UpdateAsync(user);
     }
 }

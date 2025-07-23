@@ -5,10 +5,11 @@ namespace Unitic_BE.Abstracts;
 public interface IFeedbackRepository
 {
     Task<IEnumerable<Feedback>> GetAllAsync();
-    Task<Feedback> GetByIdAsync(string id);
+    Task<List<Feedback>> GetByEventIdAsync(string eventId);
+    Task<Feedback> GetByIdAsync(string feedbackId);
     Task<Feedback> CreateAsync(Feedback feedback);
     Task UpdateAsync(Feedback feedback);
-    Task DeleteAsync(string id);
+    // Task DeleteAsync(string id);
 
     Task<Feedback?> GetLastFeedback();
 }

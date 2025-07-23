@@ -18,6 +18,6 @@ namespace Unitic_BE.Abstracts
         Task<Event?> GetEventByIdAsync(string id);
         Task UpdateEventAsync(string id, EventRequest myEventRequest);
         Task<Event> CheckEventStatusAsync(string id);
-
+        Task UpdateEventSlotAsync(string eventId, int amount);
     }
 }
