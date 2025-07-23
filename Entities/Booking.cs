@@ -16,6 +16,6 @@ public class Booking
     [ForeignKey("EventId")]
     public Event Event {get; set;}
     public Feedback? Feedback { get; set;}
-    [ForeignKey("UserId")]
+    [ForeignKey("Id")]
     public User User{ get; set; }
 }

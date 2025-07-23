@@ -12,8 +12,8 @@ using Unitic_BE;
 namespace Unitic_BE.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250722055709_UpdateUser2")]
-    partial class UpdateUser2
+    [Migration("20250723043839_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -204,11 +204,14 @@ namespace Unitic_BE.Migrations
 
                     b.Property<string>("EventId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("FeedbackId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -218,6 +221,10 @@ namespace Unitic_BE.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("BookingId");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("Id");
 
                     b.ToTable("Bookings");
                 });
@@ -313,6 +320,10 @@ namespace Unitic_BE.Migrations
                     b.Property<string>("FeedbackId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("BookingId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -320,11 +331,10 @@ namespace Unitic_BE.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("FeedbackId");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique();
 
                     b.ToTable("Feedbacks");
                 });
@@ -336,6 +346,9 @@ namespace Unitic_BE.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("PaidDate")
                         .HasColumnType("datetime2");
@@ -352,6 +365,8 @@ namespace Unitic_BE.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PaymentId");
+
+                    b.HasIndex("Id");
 
                     b.ToTable("Payments");
                 });
@@ -533,6 +548,23 @@ namespace Unitic_BE.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Unitic_BE.Entities.Booking", b =>
+                {
+                    b.HasOne("Unitic_BE.Entities.Event", "Event")
+                        .WithMany("Bookings")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Unitic_BE.Entities.User", "User")
+                        .WithMany("Bookings")
+                        .HasForeignKey("Id");
+
+                    b.Navigation("Event");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Unitic_BE.Entities.Event", b =>
                 {
                     b.HasOne("Unitic_BE.Entities.Category", "Category")
@@ -542,6 +574,26 @@ namespace Unitic_BE.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Unitic_BE.Entities.Feedback", b =>
+                {
+                    b.HasOne("Unitic_BE.Entities.Booking", "Booking")
+                        .WithOne("Feedback")
+                        .HasForeignKey("Unitic_BE.Entities.Feedback", "BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("Unitic_BE.Entities.Payment", b =>
+                {
+                    b.HasOne("Unitic_BE.Entities.User", "User")
+                        .WithMany("Payments")
+                        .HasForeignKey("Id");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Unitic_BE.Entities.User", b =>
@@ -554,14 +606,31 @@ namespace Unitic_BE.Migrations
                     b.Navigation("University");
                 });
 
+            modelBuilder.Entity("Unitic_BE.Entities.Booking", b =>
+                {
+                    b.Navigation("Feedback");
+                });
+
             modelBuilder.Entity("Unitic_BE.Entities.Category", b =>
                 {
                     b.Navigation("Events");
                 });
 
+            modelBuilder.Entity("Unitic_BE.Entities.Event", b =>
+                {
+                    b.Navigation("Bookings");
+                });
+
             modelBuilder.Entity("Unitic_BE.Entities.University", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Unitic_BE.Entities.User", b =>
+                {
+                    b.Navigation("Bookings");
+
+                    b.Navigation("Payments");
                 });
 #pragma warning restore 612, 618
         }

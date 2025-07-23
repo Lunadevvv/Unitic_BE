@@ -207,6 +207,9 @@ namespace Unitic_BE.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -214,15 +217,11 @@ namespace Unitic_BE.Migrations
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("BookingId");
 
                     b.HasIndex("EventId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("Id");
 
                     b.ToTable("Bookings");
                 });
@@ -345,6 +344,9 @@ namespace Unitic_BE.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime>("PaidDate")
                         .HasColumnType("datetime2");
 
@@ -357,11 +359,11 @@ namespace Unitic_BE.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PaymentId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("Id");
 
                     b.ToTable("Payments");
                 });
@@ -552,10 +554,8 @@ namespace Unitic_BE.Migrations
                         .IsRequired();
 
                     b.HasOne("Unitic_BE.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Bookings")
+                        .HasForeignKey("Id");
 
                     b.Navigation("Event");
 
@@ -588,9 +588,7 @@ namespace Unitic_BE.Migrations
                 {
                     b.HasOne("Unitic_BE.Entities.User", "User")
                         .WithMany("Payments")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Id");
 
                     b.Navigation("User");
                 });
@@ -627,6 +625,8 @@ namespace Unitic_BE.Migrations
 
             modelBuilder.Entity("Unitic_BE.Entities.User", b =>
                 {
+                    b.Navigation("Bookings");
+
                     b.Navigation("Payments");
                 });
 #pragma warning restore 612, 618
