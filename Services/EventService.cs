@@ -56,6 +56,7 @@ namespace Unitic_BE.Services
                 EventID = await GenerateEventId(),
                 Name = myEventRequest.Name,
                 Image = myEventRequest.Image,
+                Location = myEventRequest.Location,
                 Status = EventStatus.Private,
                 Description = myEventRequest.Description,
                 Date_Start = DateTime.Parse(myEventRequest.Date_Start),
@@ -111,6 +112,7 @@ namespace Unitic_BE.Services
             myEvent.Price = myEventRequest.Price;
             myEvent.CateID = myEventRequest.CateID;
             myEvent.Slot = myEventRequest.Slot;
+            myEvent.Location = myEventRequest.Location;
             // Update the myEvent in the repository
             await _repo.UpdateEventAsync(myEvent);
 
@@ -160,7 +162,7 @@ namespace Unitic_BE.Services
             }
             if (getEvent.Status == EventStatus.SoldOut)
             {
-            throw new EventSoldOutException();
+                throw new EventSoldOutException();
             }
             if (getEvent.Status == EventStatus.Completed)
             {

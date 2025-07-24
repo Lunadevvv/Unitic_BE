@@ -17,6 +17,7 @@ namespace Unitic_BE.Entities
         public string Image { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty;
         public DateTime Date_Start { get; set; }
         public DateTime Date_End { get; set; }
         public int Price { get; set; } = 0;
