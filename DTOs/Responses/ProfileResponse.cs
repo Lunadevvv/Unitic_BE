@@ -15,6 +15,6 @@ namespace Unitic_BE.DTOs.Responses
         public string Mssv { get; set; } = string.Empty;
         public int Wallet { get; set; }
         public University? University { get; set; }
-
+        public Role Role { get; set; }
     }
 }
