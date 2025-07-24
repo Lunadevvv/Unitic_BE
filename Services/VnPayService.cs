@@ -31,7 +31,7 @@ namespace Unitic_BE.Services
             vnpay.AddRequestData("vnp_Version", version);
             vnpay.AddRequestData("vnp_Command", command);
             vnpay.AddRequestData("vnp_TmnCode", tmnCode);
-            vnpay.AddRequestData("vnp_Amount", (model.Amount).ToString()); 
+            vnpay.AddRequestData("vnp_Amount", (model.Amount * 100).ToString()); 
             vnpay.AddRequestData("vnp_CreateDate", model.CreatedDate.ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData("vnp_CurrCode", currCode); 
             vnpay.AddRequestData("vnp_IpAddr", model.IpAddress);
