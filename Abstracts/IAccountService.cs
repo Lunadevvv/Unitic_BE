@@ -15,6 +15,7 @@ public interface IAccountService
     Task<User> GetCurrentUserAsync(string userId);
     Task<bool> CheckMoneySufficent(int money, int userMoney);
     Task<bool> ChangeUserMoney(User user);
+    Task<bool> UpdateUserWallet(User user, int money);
     Task<List<AccountResponse>> GetAllUsers();
     Task<AccountResponse> GetUserById(string accountId);
     Task UpdateAccountRoleAsync(string accountId, Role role);

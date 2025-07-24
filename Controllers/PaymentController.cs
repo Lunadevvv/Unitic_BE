@@ -8,6 +8,7 @@ using Unitic_BE.Enums;
 using System.Security.Claims;
 using Unitic_BE.Exceptions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Unitic_BE.Controllers
 {
@@ -18,11 +19,14 @@ namespace Unitic_BE.Controllers
     {
         private readonly IVnPayService _vnPayService;
         private readonly IPaymentService _paymentService;
-
-        public PaymentController(IVnPayService vnPayService, IPaymentService paymentService)
+        private readonly IAccountService _accountService;
+        private readonly UserManager<User> _userManager;
+        public PaymentController(IVnPayService vnPayService, IPaymentService paymentService, IAccountService accountService, UserManager<User> userManager)
         {
             this._vnPayService = vnPayService;
             this._paymentService = paymentService;
+            this._accountService = accountService;
+            this._userManager = userManager;
         }
 
         [HttpGet("all")]
@@ -167,6 +171,7 @@ namespace Unitic_BE.Controllers
                     if (userId == null) {
                         return BadRequest("Invalid user");
                     }
+                    var user = await _userManager.FindByIdAsync(userId);
                     var paymentResult = _vnPayService.GetPaymentResult(Request.Query);
                     var payment = new Payment();
                     if (paymentResult.Success)
@@ -174,6 +179,11 @@ namespace Unitic_BE.Controllers
                         payment.PaymentId = paymentResult.PaymentId;
                         payment.Status = PaymentStatus.Success.ToString();
                         await _paymentService.UpdatePaymentStatus(payment);
+                        var updateResult = await _accountService.UpdateUserWallet(user, Int32.Parse(paymentResult.Money));
+                        if (!updateResult)
+                        {
+                            return BadRequest("Update wallet failed. Please try again later.");
+                        }
                         return Ok(paymentResult);
                     }
                     else

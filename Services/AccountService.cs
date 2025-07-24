@@ -117,7 +117,7 @@ public class AccountService : IAccountService
         return resetToken;
     }
 
-    public async Task ResetPassword(string? userId, string newPassword)
+    public async Task ResetPassword(string userId, string newPassword)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
@@ -161,6 +161,17 @@ public class AccountService : IAccountService
     public Task<bool> CheckMoneySufficent(int money, int userMoney)
     {
         return Task.FromResult(userMoney >= money);
+    }
+
+    public async Task<bool> UpdateUserWallet(User user, int money)
+    {
+        user.wallet += money; // Cập nhật số tiền trong ví của người dùng
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+        {
+            return true;
+        }
+        return false; // Trả về false nếu cập nhật không thành công
     }
 
     public async Task<bool> ChangeUserMoney(User user)
