@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Unitic_BE.Abstracts;
+using Unitic_BE.Contracts;
 using Unitic_BE.DTOs;
 using Unitic_BE.DTOs.Requests;
 using Unitic_BE.Entities;
@@ -16,12 +17,13 @@ public class BookingController : ControllerBase
     private readonly IBookingService _bookingService;
     private readonly IEventService _eventService;
     private readonly IAccountService _accountService;
-
-    public BookingController(IBookingService bookingService, IEventService eventService, IAccountService accountService)
+    private readonly IEmailService _emailService;
+    public BookingController(IBookingService bookingService, IEventService eventService, IAccountService accountService, IEmailService emailService)
     {
         _bookingService = bookingService;
         _eventService = eventService;
         _accountService = accountService;
+        _emailService = emailService;
     }
 
     [HttpGet]
@@ -31,12 +33,9 @@ public class BookingController : ControllerBase
         return Ok(listBooking);
     }
 
-    [HttpGet("All")]
-    public async Task<IActionResult> GetAllUser()
+    [HttpGet("All/{userId}")]
+    public async Task<IActionResult> GetAllUser(string userId)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null)
-            return BadRequest("User ID not found");
         var listBooking = await _bookingService.GetAllUserBooking(userId);
         return Ok(listBooking);
     }
@@ -58,7 +57,18 @@ public class BookingController : ControllerBase
             string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
                 return BadRequest("User ID not found");
+            var user = await _accountService.GetCurrentUserAsync(userId);
+            var eventDetails = await _eventService.GetEventByIdAsync(bookingRequest.EventID);
+            if (eventDetails == null)
+                return NotFound("Event not found");
             await _bookingService.BuyTicketAsync(bookingRequest, userId);
+            var body = $"Congratulation! Here is your ticket for the event: {bookingRequest.EventID}. " +
+                       $"You have successfully purchased a ticket for the event. " +
+                       $"Event Name: {eventDetails.Name}, " +
+                       $"Event Date: {eventDetails.Date_Start}, " +
+                       $"Thank you for your purchase!";
+            var sendEmailRequest = new SendEmailRequest(user.Email, "Ticket bought successfully", body);
+            await _emailService.SendEmailAsync(sendEmailRequest);
             return Ok("Ticket purchased successfully");
         }
         catch (ObjectNotFoundException ex)
