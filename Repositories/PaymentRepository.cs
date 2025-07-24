@@ -55,8 +55,15 @@ namespace Unitic_BE.Repositories
             if (updatedPayment.Status != null)
                 existingPayment.Status = updatedPayment.Status;
             await _context.SaveChangesAsync();
-        } 
+        }
 
+        public async Task<string> GetUserByPaymentId(string paymentId)
+        {
+            return await _context.Payments
+                .Where(p => p.PaymentId == paymentId)
+                .Select(p => p.UserId)
+                .FirstOrDefaultAsync();
+        }
     }
 
 }

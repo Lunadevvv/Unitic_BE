@@ -11,8 +11,7 @@ namespace Unitic_BE.Services
     {
         private readonly IPaymentRepository _paymentRepository;
 
-        public PaymentService(IPaymentRepository paymentRepository)
-        {
+        public PaymentService(IPaymentRepository paymentRepository){
             _paymentRepository = paymentRepository;
         }
 
@@ -73,6 +72,16 @@ namespace Unitic_BE.Services
             };
             await _paymentRepository.UpdatePayment(paymentStatus);
             
+        }
+
+        public async Task<string> GetUserByPaymentId(string paymentId)
+        {
+            var userId = await _paymentRepository.GetUserByPaymentId(paymentId);
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ObjectNotFoundException("User not found for the given payment ID.");
+            }
+            return userId;
         }
     }
 }
