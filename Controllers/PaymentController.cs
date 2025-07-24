@@ -14,7 +14,6 @@ namespace Unitic_BE.Controllers
 {
     [Route("Unitic/[controller]")]
     [ApiController]
-    [Authorize]
     public class PaymentController : ControllerBase
     {
         private readonly IVnPayService _vnPayService;
@@ -30,6 +29,7 @@ namespace Unitic_BE.Controllers
         }
 
         [HttpGet("all")]
+        [Authorize]
         public async Task<ActionResult<List<Payment>>> GetAllPayments()
         {
             var payments = await _paymentService.GetAllPayment();
@@ -37,6 +37,7 @@ namespace Unitic_BE.Controllers
         }
 
         [HttpGet("allUserPayment/{userId}")]
+        [Authorize]
         public async Task<ActionResult<List<Payment>>> GetAllUserPayments(string userId)
         {
             var payments = await _paymentService.GetAllUserPayment(userId);
@@ -44,6 +45,7 @@ namespace Unitic_BE.Controllers
         }
 
         [HttpGet("{paymentId}")]
+        [Authorize]
         public async Task<ActionResult<Payment>> GetPayment(string paymentId)
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -58,6 +60,7 @@ namespace Unitic_BE.Controllers
         }
 
         [HttpPost("pay")]
+        [Authorize]
         public async Task<IActionResult> Pay([FromBody] PaymentRequest dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -76,6 +79,7 @@ namespace Unitic_BE.Controllers
         /// <param name="description">The description or note associated with the payment.</param>
         /// <returns>A URL or token to redirect the user to the third-party payment gateway.</returns>
         [HttpGet("vnpay-request")]
+        [Authorize]
         public async Task<IActionResult> CreateVnpayPayment([FromQuery] int money, [FromQuery] string description)
         {
             try
@@ -129,6 +133,7 @@ namespace Unitic_BE.Controllers
                         return BadRequest("Invalid user");
                     }
                     var paymentResult = _vnPayService.GetPaymentResult(Request.Query);
+                    
                     if (paymentResult.Success)
                     {
                         if (paymentResult.Success)
@@ -167,12 +172,13 @@ namespace Unitic_BE.Controllers
             {
                 try
                 {
-                    string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                    if (userId == null) {
-                        return BadRequest("Invalid user");
+                    var paymentResult = _vnPayService.GetPaymentResult(Request.Query);
+                    var userId = await _paymentService.GetUserByPaymentId(paymentResult.PaymentId);
+                    if (string.IsNullOrEmpty(userId))
+                    {
+                        return NotFound("User not found for the given payment ID.");
                     }
                     var user = await _userManager.FindByIdAsync(userId);
-                    var paymentResult = _vnPayService.GetPaymentResult(Request.Query);
                     var payment = new Payment();
                     if (paymentResult.Success)
                     {
