@@ -22,11 +22,13 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<string>
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<Feedback> Feedbacks { get; set; }
+    public DbSet<Organizer> Organizers { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
 
     {
         base.OnModelCreating(builder);
-        
+
         //quy định độ dài của các trường trong bảng User
         builder.Entity<User>()
             .Property(u => u.FirstName).HasMaxLength(256);
@@ -139,7 +141,7 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<string>
             .WithOne(f => f.Booking)
             .HasForeignKey<Feedback>(f => f.BookingId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         // Configure many-to-one Feedback-Event relationship
         builder.Entity<Feedback>()
             .HasOne(f => f.Event)

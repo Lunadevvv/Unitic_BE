@@ -20,6 +20,7 @@ public class User : IdentityUser<string>
     public University? University { get; set; } // Navigation property
     public ICollection<Payment> Payments { get; set; } = new List<Payment>();
     public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public Organizer Organizer { get; set; } = null!;
     //factory method to create a new user instance
 
     public static User Create(string id, string mssv, string email, string firstName, string lastName, string universityId)

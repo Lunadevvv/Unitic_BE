@@ -43,6 +43,7 @@ namespace Unitic_BE.Controllers
                 Mssv = user.Mssv,
                 Wallet = user.wallet,
                 University = await _universityService.GetUniversityById(user.UniversityId)
+                Role = user.Role
             });
         }
 

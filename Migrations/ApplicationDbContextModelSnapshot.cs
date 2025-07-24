@@ -346,6 +346,29 @@ namespace Unitic_BE.Migrations
                     b.ToTable("Feedbacks");
                 });
 
+            modelBuilder.Entity("Unitic_BE.Entities.Organizer", b =>
+                {
+                    b.Property<string>("OrganizerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("EventID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("OrganizerId");
+
+                    b.HasIndex("EventID");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Organizers");
+                });
+
             modelBuilder.Entity("Unitic_BE.Entities.Payment", b =>
                 {
                     b.Property<string>("PaymentId")
@@ -602,6 +625,25 @@ namespace Unitic_BE.Migrations
                     b.Navigation("Event");
                 });
 
+            modelBuilder.Entity("Unitic_BE.Entities.Organizer", b =>
+                {
+                    b.HasOne("Unitic_BE.Entities.Event", "Event")
+                        .WithMany("Organizers")
+                        .HasForeignKey("EventID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Unitic_BE.Entities.User", "User")
+                        .WithOne("Organizer")
+                        .HasForeignKey("Unitic_BE.Entities.Organizer", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Unitic_BE.Entities.Payment", b =>
                 {
                     b.HasOne("Unitic_BE.Entities.User", "User")
@@ -637,6 +679,8 @@ namespace Unitic_BE.Migrations
                     b.Navigation("Bookings");
 
                     b.Navigation("Feedbacks");
+
+                    b.Navigation("Organizers");
                 });
 
             modelBuilder.Entity("Unitic_BE.Entities.University", b =>
@@ -647,6 +691,9 @@ namespace Unitic_BE.Migrations
             modelBuilder.Entity("Unitic_BE.Entities.User", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("Organizer")
+                        .IsRequired();
 
                     b.Navigation("Payments");
                 });
