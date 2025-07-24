@@ -178,20 +178,17 @@ namespace Unitic_BE.Controllers
                     {
                         payment.PaymentId = paymentResult.PaymentId;
                         payment.Status = PaymentStatus.Success.ToString();
+                        payment.Price = Int32.Parse(paymentResult.Money) / 100;
                         await _paymentService.UpdatePaymentStatus(payment);
-                        var updateResult = await _accountService.UpdateUserWallet(user, Int32.Parse(paymentResult.Money));
-                        if (!updateResult)
-                        {
-                            return BadRequest("Update wallet failed. Please try again later.");
-                        }
-                        return Ok(paymentResult);
+                        var updateResult = await _accountService.UpdateUserWallet(user, payment.Price);
+                        return Redirect("http://localhost:5173/wallet/payment/success");
                     }
                     else
                     {
                         payment.PaymentId = paymentResult.PaymentId;
                         payment.Status = PaymentStatus.Failed.ToString();
                         await _paymentService.UpdatePaymentStatus(payment);
-                        return BadRequest(paymentResult);
+                        return Redirect("http://localhost:5173/wallet/payment/failure");
                     }
                 }
                 catch (Exception ex)
