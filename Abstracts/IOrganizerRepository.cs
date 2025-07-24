@@ -11,6 +11,7 @@ namespace Unitic_BE.Abstracts
         Task<bool> AssignOrganizerToEvent(string userId, string eventId);
         Task<bool> RemoveOrganizerFromEvent(string organizerId);
         Task<List<Event>> GetEventsByOrganizer(string userId);
+        Task<List<User>> GetOrganizersByEvent(string eventId);
         Task<string> GetLastOrganizerIdAsync();
         Task<string> GenerateOrganizerId();
     }

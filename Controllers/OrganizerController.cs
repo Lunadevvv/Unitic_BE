@@ -59,5 +59,19 @@ namespace Unitic_BE.Controllers
             }
             return Ok(events);
         }
+        [HttpGet("organizers/{eventId}")]
+        public async Task<IActionResult> GetOrganizersByEvent(string eventId)
+        {
+            if (string.IsNullOrEmpty(eventId))
+            {
+                return BadRequest("Event ID cannot be null or empty.");
+            }
+            var organizers = await _organizerService.GetOrganizersByEvent(eventId);
+            if (organizers == null || !organizers.Any())
+            {
+                return NotFound("No organizers found for this event.");
+            }
+            return Ok(organizers);
+        }
     }
 }

@@ -27,7 +27,7 @@ namespace Unitic_BE.Services
             }
             if (user.Role != Role.Organizer)
             {
-                
+                throw new Exception("User is not an organizer.");
             }
             //Create a new organizer with the provided userId and eventId
             return await _organizerRepository.AssignOrganizerToEvent(userId, eventId);
@@ -36,6 +36,11 @@ namespace Unitic_BE.Services
         public async Task<List<Event>> GetEventsByOrganizer(string userId)
         {
             return await _organizerRepository.GetEventsByOrganizer(userId);
+        }
+
+        public Task<List<User>> GetOrganizersByEvent(string eventId)
+        {
+            return _organizerRepository.GetOrganizersByEvent(eventId);
         }
 
         public async Task<bool> RemoveOrganizerFromEvent(string organizerId)

@@ -65,5 +65,13 @@ namespace Unitic_BE.Repositories
             string generatedId = "Orga" + id.ToString("D4");
             return generatedId;
         }
+
+        public async Task<List<User>> GetOrganizersByEvent(string eventId)
+        {
+            return await _context.Organizers
+                .Where(o => o.EventID == eventId)
+                .Select(o => o.User)
+                .ToListAsync();
+        }
     }
 }
