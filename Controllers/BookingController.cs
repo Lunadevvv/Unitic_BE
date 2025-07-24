@@ -31,9 +31,12 @@ public class BookingController : ControllerBase
         return Ok(listBooking);
     }
 
-    [HttpGet("All/{userId}")]
-    public async Task<IActionResult> GetAllUser(string userId)
+    [HttpGet("All")]
+    public async Task<IActionResult> GetAllUser()
     {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+            return BadRequest("User ID not found");
         var listBooking = await _bookingService.GetAllUserBooking(userId);
         return Ok(listBooking);
     }
@@ -92,6 +95,5 @@ public class BookingController : ControllerBase
         {
             return BadRequest(nvu.Message + "in booking");
         }
-        
     }
 }
