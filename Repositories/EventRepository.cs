@@ -58,5 +58,21 @@ namespace Unitic_BE.Repositories
             return await _context.Events
                 .FirstOrDefaultAsync(c => c.Name == name);
         }
+
+        public async Task UpdateEventSlotAsync(string eventId, int amount)
+        {
+            var myEvent = await GetEventByIdAsync(eventId);
+            if (myEvent == null)
+            {
+                throw new KeyNotFoundException($"Event with ID {eventId} not found.");
+            }
+            myEvent.Slot -= amount;
+            if (myEvent.Slot <= 0)
+            {
+                myEvent.Status = EventStatus.SoldOut; // Update status if slot is 0 or less
+            }
+            _context.Events.Update(myEvent);
+            await _context.SaveChangesAsync();
+        }
     }
 }

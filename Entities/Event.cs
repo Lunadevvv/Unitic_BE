@@ -14,9 +14,10 @@ namespace Unitic_BE.Entities
     {
         [Key]
         public string EventID { get; set; } = string.Empty;
-
+        public string Image { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty;
         public DateTime Date_Start { get; set; }
         public DateTime Date_End { get; set; }
         public int Price { get; set; } = 0;
@@ -28,6 +29,9 @@ namespace Unitic_BE.Entities
 
         [ForeignKey("CateID")]
         public Category Category { get; set; } // Navigation property to the Category entity
-
+        [JsonIgnore]
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+        [JsonIgnore]
+        public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
     }
 }

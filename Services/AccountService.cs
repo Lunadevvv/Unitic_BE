@@ -6,6 +6,7 @@ using Unitic_BE.Enums;
 using Unitic_BE.DTOs.Requests;
 using Unitic_BE.Exceptions;
 using Unitic_BE.Contracts;
+using Unitic_BE.DTOs.Responses;
 
 namespace Unitic_BE.Services;
 
@@ -53,6 +54,7 @@ public class AccountService : IAccountService
         var user = User.Create(id, registerRequest.Mssv, registerRequest.Email, registerRequest.FirstName, registerRequest.LastName, universityId);
         user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, registerRequest.Password); //hash password trước khi lưu vào bảng AspNetUsers
                                                                                                       //gọi hàm CreateAsync để vừa check validate vừa lưu vào bảng AspNetUsers
+        user.Role = Role.User; //gán role mặc định là User
         await _userManager.CreateAsync(user);
         //gán user với role vào bảng ASpNetUserRoles
         var addRoleResult = await _userManager.AddToRoleAsync(user, GetStringIdentityRoleName(Role.User));
@@ -92,46 +94,6 @@ public class AccountService : IAccountService
             _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Provided role is not supported.")
         };
     }
-    public async Task RegisterRoleAsync(string role, RegisterRequest registerRequest)
-    {
-        //trim all
-        StringTrimmerExtension.TrimAllString(registerRequest);
-        //check xem user đã tồn tại chưa
-        var userExists = await _userManager.FindByEmailAsync(registerRequest.Email) != null;
-
-        if (userExists)
-        {
-            throw new UserAlreadyExistsException(email: registerRequest.Email);
-        }
-        //check xem role hợp lệ ko
-        if (!Enum.TryParse(role, false, out Role parsedRole))
-        {
-            throw new RegistrationFailedException(new List<string>
-            {
-                $"\nRole '{role}' is not a valid role.",
-                "\nValid roles are: Admin, Moderator, Staff, Organizer, User."
-            });
-        }
-        //validate registerRequest
-        List<string> universityNames = await _universityService.GetAllUniversityNames();
-        var (erros, isValid) = _validator.ValidateUser(registerRequest, universityNames);
-        // nếu không thành công do validate thì ném ra exception
-        if (!isValid)
-        {
-            throw new RegistrationFailedException(erros);
-        }
-        //tìm university và tạo id user
-
-        var universityId = await _userRepository.GetUniversityIdByNameAsync(registerRequest.UniversityName);
-        string id = await GenerateUserId();
-        //tạo user mới
-        var user = User.Create(id, registerRequest.Mssv, registerRequest.Email, registerRequest.FirstName, registerRequest.LastName, universityId);
-        user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, registerRequest.Password); //hash password trước khi lưu vào bảng AspNetUsers
-                                                                                                      //gọi hàm CreateAsync để vừa check validate vừa lưu vào bảng AspNetUsers
-        await _userManager.CreateAsync(user);
-        //gán user với role vào bảng ASpNetUserRoles
-        var addRoleResult = await _userManager.AddToRoleAsync(user, role);
-    }
     private async Task<string> GenerateUserId()
     {
         string lastId = await _userRepository.GetLastId();
@@ -155,7 +117,7 @@ public class AccountService : IAccountService
         return resetToken;
     }
 
-    public async Task ResetPassword(string? userId, string newPassword)
+    public async Task ResetPassword(string userId, string newPassword)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
@@ -194,5 +156,105 @@ public class AccountService : IAccountService
     public async Task<User> GetCurrentUserAsync(string userId)
     {
         return await _userRepository.GetUserById(userId);
+    }
+
+    public Task<bool> CheckMoneySufficent(int money, int userMoney)
+    {
+        return Task.FromResult(userMoney >= money);
+    }
+
+    public async Task<bool> UpdateUserWallet(User user, int money)
+    {
+        user.wallet += money; // Cập nhật số tiền trong ví của người dùng
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+        {
+            return true;
+        }
+        return false; // Trả về false nếu cập nhật không thành công
+    }
+
+    public async Task<bool> ChangeUserMoney(User user)
+    {
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+        {
+            return true;
+        }
+        var errorMessages = result.Errors.Select(e => e.Description);
+        throw new Exception("Failed to update user: " + string.Join("; ", errorMessages));
+    }
+
+    public async Task<List<AccountResponse>> GetAllUsers()
+    {
+        List<User> users = await _userRepository.GetAllUsers();
+        List<AccountResponse> accountResponses = new List<AccountResponse>();
+        foreach (var user in users)
+        {
+            var accountResponse = new AccountResponse
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Mssv = user.Mssv,
+                Wallet = user.wallet,
+                University = await _universityService.GetUniversityById(user.UniversityId), // Assuming University is a navigation property
+                Role = user.Role // Assuming Role is a property of User
+            };
+            accountResponses.Add(accountResponse);
+        }
+        return accountResponses;
+    }
+
+    public async Task<AccountResponse> GetUserById(string accountId)
+    {
+        if (accountId == null)
+            throw new Exception("AccountID is empty");
+        User user = await _userRepository.GetUserById(accountId);
+        return new AccountResponse
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Mssv = user.Mssv,
+            Wallet = user.wallet,
+            University = await _universityService.GetUniversityById(user.UniversityId), // Assuming University is a navigation property
+            Role = user.Role
+        };
+    }
+
+    public async Task UpdateAccountRoleAsync(string accountId, Role role)
+    {
+        User user = await _userRepository.GetUserById(accountId);
+
+        //update user's role in the database
+        if (user == null)
+        {
+            throw new ObjectNotFoundException($"User with id {accountId} not found.");
+        }
+        var currentRoles = await _userManager.GetRolesAsync(user);
+        if (currentRoles.Contains(GetStringIdentityRoleName(role)))
+        {
+            throw new Exception($"User with id {accountId} already has the role {role}.");
+        }
+        // Remove the user from all current roles
+        foreach (var currentRole in currentRoles)
+        {
+            var removeRoleResult = await _userManager.RemoveFromRoleAsync(user, currentRole);
+            if (!removeRoleResult.Succeeded)
+            {
+                throw new Exception($"Failed to remove user from role {currentRole}: {string.Join(", ", removeRoleResult.Errors.Select(e => e.Description))}");
+            }
+        }
+        // Add the user to the new role
+        var addRoleResult = await _userManager.AddToRoleAsync(user, GetStringIdentityRoleName(role));
+        if (!addRoleResult.Succeeded)
+        {
+            throw new Exception($"Failed to add user to role {role}: {string.Join(", ", addRoleResult.Errors.Select(e => e.Description))}");
+        }
+        user.Role = role; // Update the user's role property
+        await _userManager.UpdateAsync(user);
     }
 }

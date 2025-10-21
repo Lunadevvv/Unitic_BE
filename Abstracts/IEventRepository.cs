@@ -15,16 +15,11 @@ namespace Unitic_BE.Abstracts
         Task<List<Event>> GetAllEventsAsync();
         Task<List<Event>> GetAllEventsByStatus(EventStatus status);
         Task AddEventAsync(Event myEvent);
-
         Task<Event?> GetEventByIdAsync(string id);
-
         Task UpdateEventAsync(Event myEvent);
-
-
+        Task UpdateEventSlotAsync(string eventId, int amount);
         Task<string> GetLastId();
-
         Task<Event> GetEventByNameAsync(string name);
-
 
     }
 }

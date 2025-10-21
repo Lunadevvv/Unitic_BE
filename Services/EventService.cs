@@ -55,6 +55,8 @@ namespace Unitic_BE.Services
             {
                 EventID = await GenerateEventId(),
                 Name = myEventRequest.Name,
+                Image = myEventRequest.Image,
+                Location = myEventRequest.Location,
                 Status = EventStatus.Private,
                 Description = myEventRequest.Description,
                 Date_Start = DateTime.Parse(myEventRequest.Date_Start),
@@ -103,12 +105,14 @@ namespace Unitic_BE.Services
             }
             // Update the myEvent properties
             myEvent.Name = myEventRequest.Name;
+            myEvent.Image = myEventRequest.Image;
             myEvent.Description = myEventRequest.Description;
             myEvent.Date_Start = DateTime.Parse(myEventRequest.Date_Start);
             myEvent.Date_End = DateTime.Parse(myEventRequest.Date_End);
             myEvent.Price = myEventRequest.Price;
             myEvent.CateID = myEventRequest.CateID;
             myEvent.Slot = myEventRequest.Slot;
+            myEvent.Location = myEventRequest.Location;
             // Update the myEvent in the repository
             await _repo.UpdateEventAsync(myEvent);
 
@@ -129,12 +133,12 @@ namespace Unitic_BE.Services
             return generatedId;
         }
 
-        public async Task UpdateEventStatusAsync(string id, EventStatus status)
+        public async Task UpdateEventStatusAsync(string eventId, EventStatus status)
         {
-            var myEvent = await _repo.GetEventByIdAsync(id);
+            var myEvent = await _repo.GetEventByIdAsync(eventId);
             if (myEvent == null)
             {
-                throw new ObjectNotFoundException($"Event with id {id}");
+                throw new ObjectNotFoundException($"Event with id {eventId}");
             }
 
             myEvent.Status = status;
@@ -142,13 +146,40 @@ namespace Unitic_BE.Services
 
             //gọi scheduler tạo job nếu update lên published
             if (status == EventStatus.Published)
-                await _scheduler.ScheduleUpdateStatusJobAsync(id, myEvent.Date_Start);
+                await _scheduler.ScheduleUpdateStatusJobAsync(eventId, myEvent.Date_Start);
             //ko phải published thì xóa job
             else
-                await _scheduler.DeleteStatusJobAsync(id);
+                await _scheduler.DeleteStatusJobAsync(eventId);
 
         }
 
+        public async Task<Event> CheckEventStatusAsync(string id)
+        {
+            Event getEvent = await _repo.GetEventByIdAsync(id);
+            if (getEvent == null)
+            {
+                throw new ObjectNotFoundException($"Event with id {id} is");
+            }
+            if (getEvent.Status == EventStatus.SoldOut)
+            {
+                throw new EventSoldOutException();
+            }
+            if (getEvent.Status == EventStatus.Completed)
+            {
+                throw new EventFinishException();
+            }
+            if (getEvent.Status == EventStatus.Cancelled)
+            {
+                throw new EventCancelException();
+            }
+            return getEvent;
+        }
+
+        public async Task UpdateEventSlotAsync(string eventId, int amount)
+        {
+            await _repo.UpdateEventSlotAsync(eventId, amount);
+            
+        }
     }
 }
 

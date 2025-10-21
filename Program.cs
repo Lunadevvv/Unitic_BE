@@ -62,7 +62,16 @@ namespace Unitic_BE
                 });
             });
 
-builder.Services.AddMvc();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend",
+                    builder => builder
+                                    .AllowAnyOrigin()
+                                    .AllowAnyHeader()
+                                    .AllowAnyMethod());
+            });
+
+            builder.Services.AddMvc();
 
             // Add services to the container.
 
@@ -84,6 +93,10 @@ builder.Services.AddMvc();
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddScoped<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            builder.Services.AddScoped<IFeedbackService, FeedbackService>();
             //add quartz job DI
             builder.Services.AddScoped<IEventJobScheduler, QuartzEventJobScheduler>();
             builder.Services.AddScoped<UpdateEventStatusJob>();
@@ -229,7 +242,7 @@ builder.Services.AddMvc();
             
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseCors("AllowFrontend");
 
             app.MapControllers();
 

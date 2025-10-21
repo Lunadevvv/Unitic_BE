@@ -7,14 +7,16 @@ using Unitic_BE.Enums;
 
 namespace Unitic_BE.DTOs.Responses
 {
-    public class ProfileResponse
+    public class AccountResponse
     {
         public string Id { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string Mssv { get; set; } = string.Empty;
         public int Wallet { get; set; }
-        public University? University { get; set; }
         public Role Role { get; set; }
+        public University? University { get; set; }
+
     }
 }
