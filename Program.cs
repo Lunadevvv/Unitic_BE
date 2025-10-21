@@ -97,6 +97,8 @@ namespace Unitic_BE
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+            builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
+            builder.Services.AddScoped<IOrganizerService, OrganizerService>();
             //add quartz job DI
             builder.Services.AddScoped<IEventJobScheduler, QuartzEventJobScheduler>();
             builder.Services.AddScoped<UpdateEventStatusJob>();

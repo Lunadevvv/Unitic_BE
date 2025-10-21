@@ -33,5 +33,7 @@ namespace Unitic_BE.Entities
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         [JsonIgnore]
         public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
+        [JsonIgnore]
+        public ICollection<Organizer> Organizers { get; set; } = new List<Organizer>();
     }
 }

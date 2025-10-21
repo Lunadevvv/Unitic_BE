@@ -115,6 +115,52 @@ namespace Unitic_BE.Controllers
         }
 
         /// <summary>
+        /// Handles Vnpay IPN callback after user payment
+        /// ! Don't call this vnpay will call this
+        /// ! Don't work on localhost environments
+        /// </summary>
+        /// <returns>A result of create payment data</returns>
+        [HttpGet("IpnAction(auto-call)")]
+        public async Task<IActionResult> IpnAction()
+        {
+            if (Request.QueryString.HasValue)
+            {
+                try
+                {
+                    string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (userId == null)
+                    {
+                        return BadRequest("Invalid user");
+                    }
+                    var paymentResult = _vnPayService.GetPaymentResult(Request.Query);
+                    
+                    if (paymentResult.Success)
+                    {
+                        if (paymentResult.Success)
+                        {
+                            var payment = new Payment
+                            {
+                                Price = Int32.Parse(paymentResult.Money),
+                                PaymentId = paymentResult.PaymentId,
+                                Status = PaymentStatus.Success.ToString(),
+                            };
+                            await _paymentService.UpdatePaymentStatus(payment);
+                            return Ok();
+                        }
+                    }
+                    // Thực hiện hành động nếu thanh toán thất bại tại đây. Ví dụ: Hủy đơn hàng.
+                    return BadRequest("Thanh toán thất bại");
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            return NotFound("Không tìm thấy thông tin thanh toán.");
+        }
+
+
+        /// <summary>
         /// Function to get the payment callback, for now it will also get database. Until have a host server
         /// Show value to the client
         /// </summary>
